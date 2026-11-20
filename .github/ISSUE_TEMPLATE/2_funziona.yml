@@ -1,0 +1,30 @@
+name: "✅ Il mio kit funziona / My kit works"
+description: Aggiungiamolo alla tabella di compatibilità / Let's add it to the compatibility table
+labels: ["tested kit"]
+body:
+  - type: input
+    id: kit
+    attributes:
+      label: Codice del kit (sulla scatola) / Kit code (on the box)
+      placeholder: "es. 318011"
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware del monitor (Impostazioni → Info) / Monitor firmware
+      placeholder: "es. 1.4.11"
+  - type: checkboxes
+    id: cosa
+    attributes:
+      label: Cosa funziona / What works
+      options:
+        - label: Squillo / Ring
+        - label: Video live
+        - label: Anteprima durante lo squillo / Preview while ringing
+        - label: Foto / Snapshot
+        - label: Apertura serrature / Locks
+  - type: textarea
+    id: note
+    attributes:
+      label: Note

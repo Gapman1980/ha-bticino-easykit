@@ -1,0 +1,12 @@
+{
+  "name": "bticino-easykit-ha",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ponte BTicino EASY KIT -> Home Assistant (MQTT + RTSP)",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "bticino-door-entry": "https://codeload.github.com/s-dimaio/BTicinoDoorEntry/tar.gz/refs/tags/v2.1.0",
+    "mqtt": "5.10.1"
+  }
+}

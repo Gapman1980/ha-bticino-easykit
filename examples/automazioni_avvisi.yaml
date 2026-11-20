@@ -1,0 +1,137 @@
+# Automazioni di esempio / Example automations - BTicino EASY KIT
+# IT: incolla in automations.yaml (oppure in un pacchetto) e cambia i servizi segnati con  <-- CAMBIA
+# EN: paste into automations.yaml (or a package) and change the services marked with  <-- CHANGE
+#
+# 1) Notifica sul telefono con la foto di chi suona e i pulsanti Apri / Rispondi
+#    Phone notification with the snapshot and Open / Answer buttons
+- id: videocitofono_notifica_squillo
+  alias: Videocitofono - notifica con foto
+  mode: single
+  max_exceeded: silent
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.videocitofono_squillo
+      from: "off"
+      to: "on"
+  actions:
+    # aspetta la foto dello squillo (con l'anteprima arriva in 2-3 s) / wait for the ring snapshot
+    - wait_for_trigger:
+        - trigger: state
+          entity_id: sensor.videocitofono_ultima_foto
+      timeout: "00:01:00"
+      continue_on_timeout: true
+    - action: notify.mobile_app_IL_TUO_TELEFONO        # <-- CAMBIA / CHANGE
+      data:
+        title: "🔔 Videocitofono"
+        message: "Suonano al citofono · {{ now().strftime('%H:%M') }}"
+        data:
+          tag: videocitofono
+          image: /api/camera_proxy/camera.videocitofono_foto
+          push:
+            interruption-level: time-sensitive        # iOS: passa anche con Full Immersion / breaks through Focus
+          actions:
+            - action: VC_APRI_CANCELLETTO
+              title: "Apri cancelletto"
+              authenticationRequired: true            # iOS: Face ID / codice prima di aprire
+            - action: VC_APRI_CANCELLO
+              title: "Apri cancello"
+              authenticationRequired: true
+            - action: URI
+              title: "Rispondi"
+              uri: "shortcuts://run-shortcut?name=Apri%20Door%20Entry"   # comando rapido iOS che apre l'app Door Entry EASYKIT
+
+# 2) Pulsanti della notifica / Notification buttons
+- id: videocitofono_pulsanti_notifica
+  alias: Videocitofono - pulsanti della notifica
+  mode: queued
+  triggers:
+    - trigger: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: VC_APRI_CANCELLETTO
+      id: cancelletto
+    - trigger: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: VC_APRI_CANCELLO
+      id: cancello
+  actions:
+    - choose:
+        - conditions:
+            - condition: trigger
+              id: cancelletto
+          sequence:
+            - action: button.press
+              target:
+                entity_id: button.videocitofono_apri_cancelletto   # <-- il nome della tua serratura / your lock
+        - conditions:
+            - condition: trigger
+              id: cancello
+          sequence:
+            - action: button.press
+              target:
+                entity_id: button.videocitofono_apri_cancello      # <-- il nome della tua serratura / your lock
+
+# 3) Annuncio su Alexa (integrazione Alexa Media Player) / Alexa announcement
+- id: videocitofono_alexa
+  alias: Videocitofono - annuncio Alexa
+  mode: single
+  max_exceeded: silent
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.videocitofono_squillo
+      from: "off"
+      to: "on"
+  actions:
+    - action: notify.alexa_media
+      data:
+        target:
+          - media_player.IL_TUO_ECHO                  # <-- CAMBIA / CHANGE
+        message: "Suonano al citofono!"
+        data:
+          type: announce
+
+# 4) Foto su Telegram (integrazione Telegram bot) / Snapshot to Telegram
+- id: videocitofono_telegram
+  alias: Videocitofono - foto su Telegram
+  mode: single
+  max_exceeded: silent
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.videocitofono_squillo
+      from: "off"
+      to: "on"
+  actions:
+    - wait_for_trigger:
+        - trigger: state
+          entity_id: sensor.videocitofono_ultima_foto
+      timeout: "00:01:00"
+      continue_on_timeout: true
+    - action: telegram_bot.send_photo
+      data:
+        chat_id: 123456789                           # <-- CAMBIA / CHANGE
+        url: http://127.0.0.1:8098/foto.jpg          # porta http_port dell'add-on / add-on http_port
+        caption: "🔔 Suonano al citofono · {{ now().strftime('%H:%M') }}"
+
+# 5) Chiamata persa (nessuno ha risposto) / Missed call (nobody answered)
+- id: videocitofono_chiamata_persa
+  alias: Videocitofono - chiamata persa
+  mode: queued
+  triggers:
+    - trigger: state
+      entity_id: event.videocitofono_chiamata
+  conditions:
+    - condition: template
+      value_template: >-
+        {{ trigger.from_state is not none and trigger.from_state.state != 'unavailable'
+           and trigger.to_state.state not in ['unknown', 'unavailable']
+           and trigger.to_state.state != trigger.from_state.state
+           and trigger.to_state.attributes.event_type == 'chiamata_persa' }}
+  actions:
+    - action: notify.mobile_app_IL_TUO_TELEFONO        # <-- CAMBIA / CHANGE
+      data:
+        title: "📵 Videocitofono"
+        message: "Chiamata persa alle {{ now().strftime('%H:%M') }}"
+        data:
+          tag: videocitofono
+          image: /api/camera_proxy/camera.videocitofono_foto

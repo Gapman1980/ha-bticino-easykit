@@ -1,0 +1,28 @@
+configuration:
+  language:
+    name: Lingua
+    description: Lingua dei nomi delle entità e della pagina dell'add-on (it = Italiano, en = English).
+  camera_index:
+    name: Canale telecamera
+    description: Canale della telecamera della pulsantiera (1 = pulsantiera principale).
+  foto_allo_squillo:
+    name: Foto allo squillo
+    description: Scatta una foto di chi suona (usata da notifiche e storico).
+  rtsp_port:
+    name: Porta RTSP interna
+    description: Porta locale del video interno (solo 127.0.0.1). Cambiala solo se è già occupata.
+  http_port:
+    name: Porta HTTP interna
+    description: Porta locale per foto e video MJPEG (solo 127.0.0.1). Cambiala solo se è già occupata.
+  login_port:
+    name: Porta login
+    description: Porta della pagina di login BTicino temporanea (solo durante il primo accesso, solo rete di casa).
+  login_host:
+    name: Indirizzo login
+    description: Facoltativo. Indirizzo IP di Home Assistant nella rete di casa, se il link di login ne mostra uno sbagliato.
+  plant_id:
+    name: ID impianto
+    description: Facoltativo. Solo se nel tuo account BTicino ci sono più videocitofoni.
+  debug:
+    name: Debug
+    description: Più dettagli nel registro.

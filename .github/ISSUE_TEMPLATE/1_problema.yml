@@ -1,0 +1,56 @@
+name: "🆘 Problema / Problem"
+description: Qualcosa non funziona / Something does not work
+labels: ["help"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Grazie! Compila i campi: così si risolve prima. / Thanks! Please fill in the fields.
+        ⚠️ Non scrivere mai password, email o token. / Never post passwords, emails or tokens.
+  - type: input
+    id: kit
+    attributes:
+      label: Codice del kit (sulla scatola) / Kit code (on the box)
+      placeholder: "es. 318011"
+    validations:
+      required: true
+  - type: dropdown
+    id: app
+    attributes:
+      label: App che usi / App you use
+      options: ["Door Entry EASYKIT", "Home + Security", "Altra / Other"]
+    validations:
+      required: true
+  - type: input
+    id: versione
+    attributes:
+      label: Versione add-on / Add-on version
+      placeholder: "es. 1.0.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: dove
+    attributes:
+      label: Cosa non va / What is wrong
+      multiple: true
+      options: ["Login / primo accesso", "Squillo non rilevato / Ring not detected", "Video live", "Anteprima durante lo squillo / Preview while ringing", "Foto / Snapshot", "Apertura serratura / Lock", "Card / popup", "Notifiche / Notifications", "Altro / Other"]
+    validations:
+      required: true
+  - type: textarea
+    id: descrizione
+    attributes:
+      label: Descrizione / Description
+      description: Cosa fai, cosa ti aspetti, cosa succede / What you do, what you expect, what happens
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Registro dell'add-on / Add-on log
+      description: Impostazioni → App → BTicino EASY KIT → Registro / Log
+      render: text
+  - type: input
+    id: ha
+    attributes:
+      label: Home Assistant (versione, hardware) / version, hardware
+      placeholder: "es. 2026.11, Raspberry Pi 5"

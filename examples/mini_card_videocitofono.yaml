@@ -1,0 +1,133 @@
+# Mini card Videocitofono / Door entry mini card
+# IT: doppio tocco = apre il popup "videocitofono". Stati: ambra a riposo, rossa quando suonano, verde in conversazione.
+# EN: double tap = opens the "videocitofono" popup. Amber idle, red when ringing, green during a call.
+
+type: custom:button-card
+entity: binary_sensor.videocitofono_squillo
+name: Videocitofono
+section_mode: true
+grid_options:
+  columns: 3
+  rows: 1.5
+show_name: false
+show_state: false
+show_icon: false
+show_label: false
+show_entity_picture: false
+update_timer: 3
+tap_action:
+  action: none
+hold_action:
+  action: none
+double_tap_action:
+  action: fire-dom-event
+  browser_mod:
+    service: browser_mod.popup
+    data:
+      popup_card_id: videocitofono
+custom_fields:
+  over: |-
+    [[[
+    const st = (e) => (states[e] || {}).state;
+    const ring = st('binary_sensor.videocitofono_squillo') === 'on';
+    const talk = st('binary_sensor.videocitofono_occupato') === 'on';
+    const ok = st('binary_sensor.videocitofono_connesso') === 'on';
+    const cls = !ok ? 'off' : ring ? 'ring' : talk ? 'talk' : '';
+    const bc = !ok ? '#90A4AE' : ring ? '#FF1744' : talk ? '#00E676' : '#FFB300';
+    const u = states['sensor.videocitofono_ultimo_squillo'];
+    let sp = 'nessuno squillo';
+    if (u && !['unknown','unavailable'].includes(u.state)) {
+      const d = new Date(u.state), oggi = new Date().toDateString() === d.toDateString();
+      sp = (oggi ? 'oggi ' : d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'}) + ' ') + d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+    }
+    const b = !ok ? 'Videocitofono' : ring ? 'Suonano!' : talk ? 'In linea' : 'Videocitofono';
+    if (!ok) sp = 'non collegato';
+    else if (ring) sp = 'doppio tocco';
+    else if (talk) sp = 'conversazione';
+    return '<div class="vc ' + cls + '" style="--bc:' + bc + '"><div class="vc-anello"></div>' +
+      '<svg viewBox="0 0 64 44">' +
+      '<path class="onda o1" d="M17 15 q-5 7 0 14"/><path class="onda o2" d="M12 11 q-8 11 0 22"/>' +
+      '<path class="onda o1" d="M47 15 q5 7 0 14"/><path class="onda o2" d="M52 11 q8 11 0 22"/>' +
+      '<rect class="corpo" x="21" y="2" width="22" height="40" rx="5"/>' +
+      '<rect class="vetrino" x="24.5" y="5" width="15" height="12" rx="3"/>' +
+      '<circle class="lente" cx="32" cy="11" r="3.6"/><circle class="iride" cx="32" cy="11" r="1.6"/><circle class="riflesso" cx="33.2" cy="9.9" r=".7"/>' +
+      '<circle class="led" cx="37.5" cy="7.3" r=".9"/>' +
+      '<path class="gr" d="M26 21 h12 M26 24 h12 M26 27 h12"/>' +
+      '<g class="pul"><circle class="tasto" cx="32" cy="35" r="4.3"/>' +
+      '<path class="camp" d="M30.2 36.4 h3.6 l-.6 -.8 v-1.6 a1.2 1.2 0 0 0 -2.4 0 v1.6 z M31.6 37 a.45 .45 0 0 0 .8 0"/></g>' +
+      '</svg><div class="vc-txt"><b>' + b + '</b><span>' + sp + '</span></div></div>';
+    ]]]
+  lucido: <div class="lc-riga"></div>
+styles:
+  card:
+    - position: relative
+    - overflow: hidden
+    - border-radius: 12px
+    - height: 100%
+    - padding: "0"
+    - border: none
+    - background: transparent
+  custom_fields:
+    over:
+      - position: absolute
+      - inset: "0"
+      - z-index: "2"
+      - pointer-events: none
+    lucido:
+      - position: absolute
+      - inset: "0"
+      - pointer-events: none
+      - z-index: "4"
+      - border-radius: inherit
+      - overflow: hidden
+      - "--lc-dur": 9.0s
+      - "--lc-rit": "-3.0s"
+extra_styles: |-
+  ha-card { --bc: #FFB300; isolation: isolate; }
+  .vc { position: absolute; inset: 0; border-radius: 12px; overflow: hidden;
+        background: radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--bc) 22%, #0b1220) 0%, #0b1220 70%);
+        box-shadow: 0 0 3px 1px var(--bc), 0 0 9px 2px color-mix(in srgb, var(--bc) 60%, transparent); }
+  .vc.ring { animation: vc_bl 1s ease-in-out infinite; }
+  @keyframes vc_bl { 50% { box-shadow: 0 0 6px 2px var(--bc), 0 0 22px 6px color-mix(in srgb, var(--bc) 70%, transparent); } }
+  .vc-anello { position: absolute; inset: 0; border-radius: 12px; padding: 2px; overflow: hidden; background: color-mix(in srgb, var(--bc) 35%, transparent);
+               -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+  .vc-anello::before { content: ''; position: absolute; left: 50%; top: 50%; width: 420px; height: 420px; margin: -210px;
+               background: conic-gradient(from 0deg, transparent 0 62%, var(--bc) 80%, #fff 86%, var(--bc) 92%, transparent 100%); animation: vc_giro 4s linear infinite; }
+  .ring .vc-anello::before { animation-duration: 1.1s; } .talk .vc-anello::before { animation-duration: 2.2s; }
+  .off .vc-anello::before { animation: none; opacity: 0; }
+  @keyframes vc_giro { to { transform: rotate(360deg); } }
+  .vc svg { position: absolute; left: 50%; top: 42%; width: 74%; max-width: 120px; transform: translate(-50%, -50%); overflow: visible; }
+  .vc .corpo { fill: #141b30; stroke: var(--bc); stroke-width: 1.4; filter: drop-shadow(0 0 4px var(--bc)); }
+  .vc .vetrino { fill: #070a14; stroke: color-mix(in srgb, var(--bc) 55%, transparent); stroke-width: .8; }
+  .vc .lente { fill: #0b1220; stroke: var(--bc); stroke-width: 1.1; }
+  .vc .iride { fill: var(--bc); filter: drop-shadow(0 0 3px var(--bc)); animation: vc_iride 3s ease-in-out infinite; }
+  @keyframes vc_iride { 50% { opacity: .45; } }
+  .vc .riflesso { fill: #fff; opacity: .85; }
+  .vc .led { fill: #FF1744; filter: drop-shadow(0 0 2px #FF1744); animation: vc_rec 1.2s ease-in-out infinite; }
+  .off .vc .led { fill: #607d8b; filter: none; animation: none; }
+  @keyframes vc_rec { 50% { opacity: .15; } }
+  .vc .gr { stroke: color-mix(in srgb, var(--bc) 60%, #fff); stroke-width: 1.2; stroke-linecap: round; opacity: .7; }
+  .vc .tasto { fill: color-mix(in srgb, var(--bc) 30%, #0b1220); stroke: var(--bc); stroke-width: 1.2; filter: drop-shadow(0 0 4px var(--bc)); }
+  .vc .camp { fill: #fff; }
+  .vc .pul { transform-box: fill-box; transform-origin: 50% 50%; animation: vc_resp 2.8s ease-in-out infinite; }
+  .ring .vc .pul { animation: vc_premi .5s ease-in-out infinite; }
+  @keyframes vc_resp { 50% { transform: scale(1.08); } }
+  @keyframes vc_premi { 50% { transform: scale(.82); } }
+  .vc .onda { fill: none; stroke: var(--bc); stroke-width: 1.6; stroke-linecap: round; opacity: 0; }
+  .ring .vc .onda, .talk .vc .onda { animation: vc_onda 1.2s ease-out infinite; }
+  .ring .vc .o2, .talk .vc .o2 { animation-delay: .3s; }
+  .talk .vc .onda { animation-duration: 1.8s; }
+  @keyframes vc_onda { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+  .vc-bad { position: absolute; top: 5px; right: 6px; z-index: 3; display: flex; align-items: center; gap: 3px; padding: 1px 6px; border-radius: 8px;
+            background: rgba(255,23,68,.18); border: 1px solid #FF1744; color: #fff; font: 800 8.5px/1.4 system-ui, sans-serif; letter-spacing: .8px; }
+  .vc-bad i { width: 5px; height: 5px; border-radius: 50%; background: #FF1744; box-shadow: 0 0 5px #FF1744; animation: vc_rec .8s ease-in-out infinite; }
+  .vc-txt { position: absolute; left: 4px; right: 4px; bottom: 5px; text-align: center; color: #fff; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .vc-txt b { display: block; font-size: 12px; font-weight: 700; text-shadow: 0 0 6px color-mix(in srgb, var(--bc) 70%, transparent); }
+  .vc-txt span { display: block; font-size: 9.5px; color: color-mix(in srgb, var(--bc) 45%, #cfd8dc); }
+  @media (prefers-reduced-motion: reduce) { .vc, .vc * { animation: none !important; } }
+  /* lucido_ovunque */
+  .lc-riga { position: absolute; top: -30%; bottom: -30%; left: 0; width: 34%;
+             background: linear-gradient(100deg, transparent, rgba(255,255,255,.22) 45%, rgba(255,255,255,.32) 50%, rgba(255,255,255,.22) 55%, transparent);
+             transform: translateX(-180%) skewX(-14deg); animation: lc_passa var(--lc-dur, 9s) ease-in-out var(--lc-rit, 0s) infinite; }
+  @keyframes lc_passa { 0%, 70% { transform: translateX(-180%) skewX(-14deg); } 92%, 100% { transform: translateX(420%) skewX(-14deg); } }
+  /* fine lucido_ovunque */

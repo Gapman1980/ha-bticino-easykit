@@ -1,0 +1,28 @@
+configuration:
+  language:
+    name: Language
+    description: Language of entity names and of the add-on page (it = Italiano, en = English).
+  camera_index:
+    name: Camera channel
+    description: Entrance panel camera channel (1 = main panel).
+  foto_allo_squillo:
+    name: Snapshot on ring
+    description: Take a snapshot of who is ringing (used by notifications and history).
+  rtsp_port:
+    name: Internal RTSP port
+    description: Local port of the internal video stream (127.0.0.1 only). Change only if it is already in use.
+  http_port:
+    name: Internal HTTP port
+    description: Local port for snapshot and MJPEG video (127.0.0.1 only). Change only if it is already in use.
+  login_port:
+    name: Login port
+    description: Port of the temporary BTicino login page (used only during first setup, home network only).
+  login_host:
+    name: Login address
+    description: Optional. IP address of Home Assistant on your home network, if the login link shows a wrong one.
+  plant_id:
+    name: Plant ID
+    description: Optional. Only if your BTicino account has more than one door entry system.
+  debug:
+    name: Debug
+    description: More details in the log.

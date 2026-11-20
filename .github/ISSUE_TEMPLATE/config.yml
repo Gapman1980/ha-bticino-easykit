@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📖 Istruzioni / Instructions
+    url: https://github.com/Gapman1980/ha-bticino-easykit#readme
+    about: Installazione, entità, esempi di card e automazioni / Installation, entities, card and automation examples

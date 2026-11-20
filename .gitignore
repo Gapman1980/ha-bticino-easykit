@@ -1,0 +1,12 @@
+node_modules/
+*.log
+.env*
+*.pem
+*.key
+tokens.json
+sip_account.json
+certs.json
+plant.json
+__pycache__/
+.DS_Store
+Thumbs.db
