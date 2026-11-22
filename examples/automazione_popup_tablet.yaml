@@ -10,692 +10,778 @@
   mode: single
   max_exceeded: silent
   triggers:
-    - trigger: state
-      entity_id: binary_sensor.videocitofono_squillo
-      from: "off"
-      to: "on"
+  - trigger: state
+    entity_id: binary_sensor.videocitofono_squillo
+    from: 'off'
+    to: 'on'
   actions:
-    - action: notify.mobile_app_TUO_TABLET
-      continue_on_error: true
-      data:
-        message: kiosk_hide_screensaver
-    - delay:
-        milliseconds: 800
-    - action: browser_mod.popup
-      continue_on_error: true
-      data:
-        browser_id:
-          - ID_TABLET
-        title: Videocitofono
-        size: wide
-        dismissable: true
-        timeout: 120000
-        content:
-          type: grid
-          columns: 2
-          square: false
+  - action: notify.mobile_app_TUO_TABLET
+    continue_on_error: true
+    data:
+      message: kiosk_hide_screensaver
+  - delay:
+      milliseconds: 800
+  - action: browser_mod.popup
+    continue_on_error: true
+    data:
+      browser_id:
+      - ID_TABLET
+      title: Videocitofono
+      size: wide
+      dismissable: true
+      timeout: 120000
+      content:
+        type: grid
+        columns: 2
+        square: false
+        cards:
+        - type: vertical-stack
           cards:
-            - type: vertical-stack
-              cards:
-                - type: custom:button-card
-                  entity: binary_sensor.videocitofono_squillo
-                  show_name: false
-                  show_state: false
-                  show_icon: false
-                  update_timer: 2
-                  tap_action:
-                    action: none
-                  hold_action:
-                    action: none
-                  styles:
-                    card:
-                      - padding: "0"
-                      - background: transparent
-                      - border: none
-                      - box-shadow: none
-                      - overflow: visible
-                    grid:
-                      - grid-template-areas: "\"h\""
-                      - grid-template-columns: 1fr
-                    custom_fields:
-                      h:
-                        - width: 100%
-                  custom_fields:
-                    h: |-
-                      [[[
-                      window.__vcEl = this; window.__vcHass = hass;
-                      if (!window.__vcBattito) window.__vcBattito = setInterval(() => {
-                        const el = window.__vcEl;
-                        if (el && el.isConnected && !document.hidden && window.__vcHass) window.__vcHass.callService('mqtt', 'publish', { topic: 'bticino_easykit/cmd/vivo', payload: '1' }).catch(() => {});
-                      }, 1500);
+          - type: custom:button-card
+            entity: binary_sensor.videocitofono_squillo
+            show_name: false
+            show_state: false
+            show_icon: false
+            update_timer: 2
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            styles:
+              card:
+              - padding: '0'
+              - background: transparent
+              - border: none
+              - box-shadow: none
+              - overflow: visible
+              grid:
+              - grid-template-areas: '"h"'
+              - grid-template-columns: 1fr
+              custom_fields:
+                h:
+                - width: 100%
+            custom_fields:
+              h: |-
+                [[[
+                window.__vcEl = this; window.__vcHass = hass;
+                if (!window.__vcBattito) window.__vcBattito = setInterval(() => {
+                  const el = window.__vcEl;
+                  if (el && el.isConnected && !document.hidden && window.__vcHass) window.__vcHass.callService('mqtt', 'publish', { topic: 'bticino_easykit/cmd/vivo', payload: '1' }).catch(() => {});
+                }, 1500);
 
-                      const st = (e) => (states[e] || {}).state;
-                      const ring = st('binary_sensor.videocitofono_squillo') === 'on';
-                      const talk = st('binary_sensor.videocitofono_occupato') === 'on';
-                      const ok = st('binary_sensor.videocitofono_connesso') === 'on';
-                      const m = ring ? { c: '#FF1744', c2: '#FF9100', ic: 'mdi:bell-ring', t: 'Stanno suonando!', cl: 'ring' }
-                              : talk ? { c: '#00E676', c2: '#00E5FF', ic: 'mdi:account-voice', t: 'In conversazione', cl: 'talk' }
-                              : { c: '#FFB300', c2: '#00E5FF', ic: 'mdi:doorbell-video', t: 'Ingresso', cl: 'idle' };
-                      const u = states['sensor.videocitofono_ultimo_squillo'];
-                      let sub = 'Pulsantiera BTicino · Easy Kit';
-                      if (u && !['unknown','unavailable'].includes(u.state)) {
-                        const d = new Date(u.state), oggi = new Date().toDateString() === d.toDateString();
-                        sub = 'Ultimo squillo ' + (oggi ? 'oggi' : d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'})) + ' alle ' + d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-                      }
-                      if (!ok) sub = 'Non collegato a BTicino';
-                      const onde = ring ? '<i class="w"></i><i class="w"></i><i class="w"></i>' : '';
-                      const eq = talk ? '<div class="eq"><i></i><i></i><i></i><i></i></div>' : '';
-                      return '<div class="hd ' + m.cl + '" style="--c:' + m.c + ';--c2:' + m.c2 + '"><div class="in">' +
-                        '<div class="ic">' + onde + '<ha-icon icon="' + m.ic + '"></ha-icon></div>' +
-                        '<div class="tx"><b>' + m.t + '</b><div class="mq"><span class="sc">' + sub + ' &nbsp;&nbsp;•&nbsp;&nbsp; ' + sub + ' &nbsp;&nbsp;•&nbsp;&nbsp; </span></div>' + eq + '</div>' +
-                        '</div></div>';
-                      ]]]
-                  extra_styles: |-
+                const st = (e) => (states[e] || {}).state;
+                const ring = st('binary_sensor.videocitofono_squillo') === 'on';
+                const talk = st('binary_sensor.videocitofono_occupato') === 'on';
+                const ok = st('binary_sensor.videocitofono_connesso') === 'on';
+                const m = ring ? { c: '#FF1744', c2: '#FF9100', ic: 'mdi:bell-ring', t: 'Stanno suonando!', cl: 'ring' }
+                        : talk ? { c: '#00E676', c2: '#00E5FF', ic: 'mdi:account-voice', t: 'In conversazione', cl: 'talk' }
+                        : { c: '#FFB300', c2: '#00E5FF', ic: 'mdi:doorbell-video', t: 'Ingresso', cl: 'idle' };
+                const u = states['sensor.videocitofono_ultimo_squillo'];
+                let sub = 'Pulsantiera BTicino · Easy Kit';
+                if (u && !['unknown','unavailable'].includes(u.state)) {
+                  const d = new Date(u.state), oggi = new Date().toDateString() === d.toDateString();
+                  sub = 'Ultimo squillo ' + (oggi ? 'oggi' : d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit'})) + ' alle ' + d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+                }
+                if (!ok) sub = 'Non collegato a BTicino';
+                const onde = ring ? '<i class="w"></i><i class="w"></i><i class="w"></i>' : '';
+                const eq = talk ? '<div class="eq"><i></i><i></i><i></i><i></i></div>' : '';
+                return '<div class="hd ' + m.cl + '" style="--c:' + m.c + ';--c2:' + m.c2 + '"><div class="in">' +
+                  '<div class="ic">' + onde + '<ha-icon icon="' + m.ic + '"></ha-icon></div>' +
+                  '<div class="tx"><b>' + m.t + '</b><div class="mq"><span class="sc">' + sub + ' &nbsp;&nbsp;•&nbsp;&nbsp; ' + sub + ' &nbsp;&nbsp;•&nbsp;&nbsp; </span></div>' + eq + '</div>' +
+                  '</div></div>';
+                ]]]
+            extra_styles: |2-
 
-                    .hd { position: relative; border-radius: 24px; padding: 2px; overflow: hidden; isolation: isolate; }
-                    .hd::before { content: ''; position: absolute; inset: -60%; z-index: -1; background: conic-gradient(from 0deg, var(--c), transparent 22%, var(--c2) 50%, transparent 72%, var(--c)); animation: vc_rot 5s linear infinite; }
-                    .hd.ring::before { animation-duration: 1.6s; }
-                    @keyframes vc_rot { to { transform: rotate(360deg); } }
-                    .in { position: relative; display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 22px; overflow: hidden;
-                          background: radial-gradient(120% 160% at 0% 0%, rgba(255,255,255,.07), transparent 55%), linear-gradient(135deg, #0b1020 0%, #121a35 60%, #0b1020 100%); color: #fff; }
-                    .in::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.08) 50%, transparent 65%); transform: translateX(-100%); animation: vc_luce 4.5s ease-in-out infinite; pointer-events: none; }
-                    @keyframes vc_luce { 60%,100% { transform: translateX(100%); } }
-                    .ic { position: relative; flex: none; width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center;
-                          background: radial-gradient(circle, color-mix(in srgb, var(--c) 45%, transparent), transparent 70%); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 70%, transparent), 0 0 20px color-mix(in srgb, var(--c) 55%, transparent); }
-                    .ic ha-icon { --mdc-icon-size: 32px; color: #fff; filter: drop-shadow(0 0 8px var(--c)); animation: vc_resp 2.6s ease-in-out infinite; }
-                    .ring .ic ha-icon { animation: vc_sh .45s ease-in-out infinite; }
-                    @keyframes vc_resp { 50% { transform: scale(1.12); } }
-                    @keyframes vc_sh { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-18deg); } 75% { transform: rotate(18deg); } }
-                    .w { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--c); opacity: 0; animation: vc_onda 1.8s ease-out infinite; }
-                    .w:nth-child(2) { animation-delay: .6s; } .w:nth-child(3) { animation-delay: 1.2s; }
-                    @keyframes vc_onda { 0% { transform: scale(.95); opacity: .9; } 100% { transform: scale(1.45); opacity: 0; } }
-                    .tx { flex: 1; min-width: 0; text-align: left; }
-                    .tx b { display: block; font-size: 20px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: .2px; text-shadow: 0 0 14px color-mix(in srgb, var(--c) 60%, transparent); }
-                    .tx .mq { overflow: hidden; white-space: nowrap; margin-top: 2px;
-                              -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
-                    .tx .mq .sc { display: inline-block; font-size: 12.5px; color: #aab6c8; animation: vc_mq 14s linear infinite; will-change: transform; }
-                    @keyframes vc_mq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-                    .eq { display: flex; gap: 4px; align-items: flex-end; height: 16px; margin-top: 6px; }
-                    .eq i { width: 5px; border-radius: 3px; background: var(--c); box-shadow: 0 0 6px var(--c); animation: vc_eq .8s ease-in-out infinite; }
-                    .eq i:nth-child(2) { animation-delay: .15s; } .eq i:nth-child(3) { animation-delay: .3s; } .eq i:nth-child(4) { animation-delay: .45s; }
-                    @keyframes vc_eq { 0%,100% { height: 4px; } 50% { height: 16px; } }
-                    .lv { flex: none; display: flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 20px; background: rgba(255,23,68,.14); border: 1px solid #FF1744; font-size: 11.5px; font-weight: 800; letter-spacing: 1.2px; }
-                    .lv i { width: 8px; height: 8px; border-radius: 50%; background: #FF1744; box-shadow: 0 0 8px 2px #FF1744; animation: vc_lamp 1.1s ease-in-out infinite; }
-                    @keyframes vc_lamp { 50% { opacity: .2; } }
-                - type: conditional
-                  conditions:
-                    - condition: or
-                      conditions:
-                        - condition: state
-                          entity: binary_sensor.videocitofono_squillo
-                          state_not: "on"
-                        - condition: state
-                          entity: switch.videocitofono_anteprima
-                          state: "on"
-                    - condition: state
-                      entity: binary_sensor.videocitofono_occupato
-                      state_not: "on"
-                  card:
-                    type: picture-entity
-                    entity: camera.videocitofono_video
-                    camera_view: live
-                    aspect_ratio: "4:3"
-                    show_name: false
-                    show_state: false
-                    tap_action:
-                      action: none
-                    hold_action:
-                      action: none
-                    card_mod:
-                      style: |-
-                        ha-card { position: relative; border-radius: 22px; overflow: hidden; border: none !important;
-                          background: #0b1020 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300' preserveAspectRatio='xMidYMid slice'><defs><radialGradient id='g' cx='50%' cy='42%' r='75%'><stop offset='0' stop-color='%23182a52'/><stop offset='1' stop-color='%230b1020'/></radialGradient></defs><rect width='400' height='300' fill='url(%23g)'/><circle cx='200' cy='122' r='30' fill='none' stroke='%2300E5FF' stroke-opacity='.18' stroke-width='6'/><path d='M200 92 a30 30 0 0 1 30 30' fill='none' stroke='%2300E5FF' stroke-width='6' stroke-linecap='round'><animateTransform attributeName='transform' type='rotate' from='0 200 122' to='360 200 122' dur='0.9s' repeatCount='indefinite'/></path><text x='200' y='192' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-size='28' font-weight='800' fill='%23ffffff'>Loading<tspan>.<animate attributeName='opacity' values='0;1;1;0' dur='1.2s' repeatCount='indefinite'/></tspan><tspan>.<animate attributeName='opacity' values='0;0;1;0' dur='1.2s' repeatCount='indefinite'/></tspan><tspan>.<animate attributeName='opacity' values='0;0;0;1;0' dur='1.2s' repeatCount='indefinite'/></tspan></text><text x='200' y='222' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-size='13' fill='%2390a4ae'>Collegamento alla pulsantiera</text></svg>") center / cover no-repeat !important;
-                          box-shadow: 0 0 0 2px #00E5FF66, 0 0 24px #00E5FF44, 0 10px 30px rgba(0,0,0,.45) !important; }
-                        hui-image, ha-camera-stream, .image { background: transparent !important; }
-                        ha-card::before { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(#00E5FF,#00E5FF) top 10px left 10px / 22px 3px no-repeat, linear-gradient(#00E5FF,#00E5FF) top 10px left 10px / 3px 22px no-repeat, linear-gradient(#00E5FF,#00E5FF) top 10px right 10px / 22px 3px no-repeat, linear-gradient(#00E5FF,#00E5FF) top 10px right 10px / 3px 22px no-repeat, linear-gradient(#00E5FF,#00E5FF) bottom 10px left 10px / 22px 3px no-repeat, linear-gradient(#00E5FF,#00E5FF) bottom 10px left 10px / 3px 22px no-repeat, linear-gradient(#00E5FF,#00E5FF) bottom 10px right 10px / 22px 3px no-repeat, linear-gradient(#00E5FF,#00E5FF) bottom 10px right 10px / 3px 22px no-repeat, radial-gradient(130% 100% at 50% 50%, transparent 62%, rgba(0,0,0,.55)); filter: drop-shadow(0 0 4px #00E5FF); }
-                        ha-card::after { content: '● LIVE'; position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 3; padding: 4px 11px; border-radius: 12px;
-                          background: rgba(10,14,28,.55); border: 1px solid #FF1744AA; color: #fff; font: 800 11px/1 system-ui, sans-serif; letter-spacing: 1.3px;
-                          -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: vc_lv 1.4s ease-in-out infinite; }
-                        @keyframes vc_lv { 50% { box-shadow: 0 0 12px #FF1744; color: #FF8A80; } }
-                - type: conditional
-                  conditions:
-                    - condition: state
-                      entity: binary_sensor.videocitofono_squillo
-                      state: "on"
-                    - condition: state
-                      entity: switch.videocitofono_anteprima
-                      state_not: "on"
-                  card:
-                    type: custom:button-card
-                    show_name: false
-                    show_state: false
-                    show_icon: false
-                    tap_action:
-                      action: none
-                    styles:
-                      card:
-                        - padding: "0"
-                        - background: transparent
-                        - border: none
-                        - box-shadow: none
-                      grid:
-                        - grid-template-areas: "\"m\""
-                        - grid-template-columns: 1fr
-                      custom_fields:
-                        m:
-                          - width: 100%
-                    custom_fields:
-                      m: <div class="box"><div class="bolla"><i class="w"></i><i class="w"></i><i class="w"></i><ha-icon icon="mdi:phone-ring"></ha-icon></div><b>In chiamata con il monitor</b><span>Il video parte appena finisce lo squillo</span></div>
-                    extra_styles: |-
+              .hd { position: relative; border-radius: 24px; padding: 2px; overflow: hidden; isolation: isolate; }
+              .hd::before { content: ''; position: absolute; inset: -60%; z-index: -1; background: conic-gradient(from 0deg, var(--c), transparent 22%, var(--c2) 50%, transparent 72%, var(--c)); animation: vc_rot 5s linear infinite; }
+              .hd.ring::before { animation-duration: 1.6s; }
+              @keyframes vc_rot { to { transform: rotate(360deg); } }
+              .in { position: relative; display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 22px; overflow: hidden;
+                    background: radial-gradient(120% 160% at 0% 0%, rgba(255,255,255,.07), transparent 55%), linear-gradient(135deg, #0b1020 0%, #121a35 60%, #0b1020 100%); color: #fff; }
+              .in::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.08) 50%, transparent 65%); transform: translateX(-100%); animation: vc_luce 4.5s ease-in-out infinite; pointer-events: none; }
+              @keyframes vc_luce { 60%,100% { transform: translateX(100%); } }
+              .ic { position: relative; flex: none; width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center;
+                    background: radial-gradient(circle, color-mix(in srgb, var(--c) 45%, transparent), transparent 70%); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 70%, transparent), 0 0 20px color-mix(in srgb, var(--c) 55%, transparent); }
+              .ic ha-icon { --mdc-icon-size: 32px; color: #fff; filter: drop-shadow(0 0 8px var(--c)); animation: vc_resp 2.6s ease-in-out infinite; }
+              .ring .ic ha-icon { animation: vc_sh .45s ease-in-out infinite; }
+              @keyframes vc_resp { 50% { transform: scale(1.12); } }
+              @keyframes vc_sh { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-18deg); } 75% { transform: rotate(18deg); } }
+              .w { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--c); opacity: 0; animation: vc_onda 1.8s ease-out infinite; }
+              .w:nth-child(2) { animation-delay: .6s; } .w:nth-child(3) { animation-delay: 1.2s; }
+              @keyframes vc_onda { 0% { transform: scale(.95); opacity: .9; } 100% { transform: scale(1.45); opacity: 0; } }
+              .tx { flex: 1; min-width: 0; text-align: left; }
+              .tx b { display: block; font-size: 20px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: .2px; text-shadow: 0 0 14px color-mix(in srgb, var(--c) 60%, transparent); }
+              .tx .mq { overflow: hidden; white-space: nowrap; margin-top: 2px;
+                        -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
+              .tx .mq .sc { display: inline-block; font-size: 12.5px; color: #aab6c8; animation: vc_mq 14s linear infinite; will-change: transform; }
+              @keyframes vc_mq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+              .eq { display: flex; gap: 4px; align-items: flex-end; height: 16px; margin-top: 6px; }
+              .eq i { width: 5px; border-radius: 3px; background: var(--c); box-shadow: 0 0 6px var(--c); animation: vc_eq .8s ease-in-out infinite; }
+              .eq i:nth-child(2) { animation-delay: .15s; } .eq i:nth-child(3) { animation-delay: .3s; } .eq i:nth-child(4) { animation-delay: .45s; }
+              @keyframes vc_eq { 0%,100% { height: 4px; } 50% { height: 16px; } }
+              .lv { flex: none; display: flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 20px; background: rgba(255,23,68,.14); border: 1px solid #FF1744; font-size: 11.5px; font-weight: 800; letter-spacing: 1.2px; }
+              .lv i { width: 8px; height: 8px; border-radius: 50%; background: #FF1744; box-shadow: 0 0 8px 2px #FF1744; animation: vc_lamp 1.1s ease-in-out infinite; }
+              @keyframes vc_lamp { 50% { opacity: .2; } }
+          - type: conditional
+            conditions:
+            - condition: or
+              conditions:
+              - condition: state
+                entity: binary_sensor.videocitofono_squillo
+                state_not: 'on'
+              - condition: state
+                entity: switch.videocitofono_anteprima
+                state: 'on'
+            - condition: state
+              entity: binary_sensor.videocitofono_occupato
+              state_not: 'on'
+            card:
+              type: picture-entity
+              entity: camera.videocitofono_video
+              camera_view: live
+              aspect_ratio: '4:3'
+              show_name: false
+              show_state: false
+              tap_action:
+                action: none
+              hold_action:
+                action: none
+              card_mod:
+                style: |-
+                  ha-card { position: relative; border-radius: 22px; overflow: hidden; border: none !important;
+                    background: #0b1020 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300' preserveAspectRatio='xMidYMid slice'><defs><radialGradient id='g' cx='50%' cy='42%' r='75%'><stop offset='0' stop-color='%23182a52'/><stop offset='1' stop-color='%230b1020'/></radialGradient></defs><rect width='400' height='300' fill='url(%23g)'/><circle cx='200' cy='122' r='30' fill='none' stroke='%2300E5FF' stroke-opacity='.18' stroke-width='6'/><path d='M200 92 a30 30 0 0 1 30 30' fill='none' stroke='%2300E5FF' stroke-width='6' stroke-linecap='round'><animateTransform attributeName='transform' type='rotate' from='0 200 122' to='360 200 122' dur='0.9s' repeatCount='indefinite'/></path><text x='200' y='192' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-size='28' font-weight='800' fill='%23ffffff'>Loading<tspan>.<animate attributeName='opacity' values='0;1;1;0' dur='1.2s' repeatCount='indefinite'/></tspan><tspan>.<animate attributeName='opacity' values='0;0;1;0' dur='1.2s' repeatCount='indefinite'/></tspan><tspan>.<animate attributeName='opacity' values='0;0;0;1;0' dur='1.2s' repeatCount='indefinite'/></tspan></text><text x='200' y='222' text-anchor='middle' font-family='Helvetica,Arial,sans-serif' font-size='13' fill='%2390a4ae'>Collegamento alla pulsantiera</text></svg>") center / cover no-repeat !important;
+                    box-shadow: 0 0 0 2px #00E5FF66, 0 0 24px #00E5FF44, 0 10px 30px rgba(0,0,0,.45) !important; }
+                  hui-image, ha-camera-stream, .image { background: transparent !important; }
+                  ha-card::before { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(#00E5FF,#00E5FF) top 10px left 10px / 22px 3px no-repeat, linear-gradient(#00E5FF,#00E5FF) top 10px left 10px / 3px 22px no-repeat, linear-gradient(#00E5FF,#00E5FF) top 10px right 10px / 22px 3px no-repeat, linear-gradient(#00E5FF,#00E5FF) top 10px right 10px / 3px 22px no-repeat, linear-gradient(#00E5FF,#00E5FF) bottom 10px left 10px / 22px 3px no-repeat, linear-gradient(#00E5FF,#00E5FF) bottom 10px left 10px / 3px 22px no-repeat, linear-gradient(#00E5FF,#00E5FF) bottom 10px right 10px / 22px 3px no-repeat, linear-gradient(#00E5FF,#00E5FF) bottom 10px right 10px / 3px 22px no-repeat, radial-gradient(130% 100% at 50% 50%, transparent 62%, rgba(0,0,0,.55)); filter: drop-shadow(0 0 4px #00E5FF); }
+                  ha-card::after { content: '● LIVE'; position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 3; padding: 4px 11px; border-radius: 12px;
+                    background: rgba(10,14,28,.55); border: 1px solid #FF1744AA; color: #fff; font: 800 11px/1 system-ui, sans-serif; letter-spacing: 1.3px;
+                    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: vc_lv 1.4s ease-in-out infinite; }
+                  @keyframes vc_lv { 50% { box-shadow: 0 0 12px #FF1744; color: #FF8A80; } }
+          - type: conditional
+            conditions:
+            - condition: state
+              entity: binary_sensor.videocitofono_squillo
+              state: 'on'
+            - condition: state
+              entity: switch.videocitofono_anteprima
+              state_not: 'on'
+            card:
+              type: custom:button-card
+              show_name: false
+              show_state: false
+              show_icon: false
+              tap_action:
+                action: none
+              styles:
+                card:
+                - padding: '0'
+                - background: transparent
+                - border: none
+                - box-shadow: none
+                grid:
+                - grid-template-areas: '"m"'
+                - grid-template-columns: 1fr
+                custom_fields:
+                  m:
+                  - width: 100%
+              custom_fields:
+                m: <div class="box"><div class="bolla"><i class="w"></i><i class="w"></i><i class="w"></i><ha-icon icon="mdi:phone-ring"></ha-icon></div><b>In chiamata con il monitor</b><span>Il video parte appena finisce lo squillo</span></div>
+              extra_styles: |2-
 
-                      .box { position: relative; aspect-ratio: 4 / 3; border-radius: 22px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: #fff;
-                             background: linear-gradient(#FF1744,#FF1744) top 10px left 10px / 22px 3px no-repeat, linear-gradient(#FF1744,#FF1744) top 10px left 10px / 3px 22px no-repeat, linear-gradient(#FF1744,#FF1744) top 10px right 10px / 22px 3px no-repeat, linear-gradient(#FF1744,#FF1744) top 10px right 10px / 3px 22px no-repeat, linear-gradient(#FF1744,#FF1744) bottom 10px left 10px / 22px 3px no-repeat, linear-gradient(#FF1744,#FF1744) bottom 10px left 10px / 3px 22px no-repeat, linear-gradient(#FF1744,#FF1744) bottom 10px right 10px / 22px 3px no-repeat, linear-gradient(#FF1744,#FF1744) bottom 10px right 10px / 3px 22px no-repeat, radial-gradient(60% 55% at 50% 42%, #FF174433, transparent 70%), linear-gradient(160deg, #10162c, #0b1020);
-                             box-shadow: 0 0 0 2px #FF174477, 0 0 24px #FF174444; }
-                      .bolla { position: relative; width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle, #FF174455, transparent 70%); box-shadow: 0 0 0 2px #FF1744AA, 0 0 26px #FF174488; }
-                      .bolla ha-icon { --mdc-icon-size: 44px; color: #fff; filter: drop-shadow(0 0 10px #FF1744); animation: vc_sh .5s ease-in-out infinite; }
-                      .w { position: absolute; inset: 0; border-radius: 50%; border: 2px solid #FF1744; opacity: 0; animation: vc_onda 2s ease-out infinite; }
-                      .w:nth-child(2) { animation-delay: .66s; } .w:nth-child(3) { animation-delay: 1.33s; }
-                      @keyframes vc_onda { 0% { transform: scale(.9); opacity: .9; } 100% { transform: scale(2.3); opacity: 0; } }
-                      @keyframes vc_sh { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-16deg); } 75% { transform: rotate(16deg); } }
-                      @keyframes vc_resp { 50% { transform: scale(1.12); } }
-                      .box b { font-size: 19px; font-weight: 800; text-shadow: 0 0 12px #FF1744; margin-top: 6px; } .box span { font-size: 12.5px; color: #aab6c8; padding: 0 14px; }
-                      .eq { display: flex; gap: 5px; align-items: flex-end; height: 24px; margin-top: 4px; }
-                      .eq i { width: 6px; border-radius: 3px; background: #FF9100; box-shadow: 0 0 6px #FF9100; animation: vc_eq .85s ease-in-out infinite; }
-                      .eq i:nth-child(2) { animation-delay: .15s; } .eq i:nth-child(3) { animation-delay: .3s; } .eq i:nth-child(4) { animation-delay: .45s; } .eq i:nth-child(5) { animation-delay: .6s; }
-                      @keyframes vc_eq { 0%,100% { height: 5px; } 50% { height: 24px; } }
-                - type: conditional
-                  conditions:
-                    - condition: state
-                      entity: binary_sensor.videocitofono_occupato
-                      state: "on"
-                  card:
-                    type: custom:button-card
-                    show_name: false
-                    show_state: false
-                    show_icon: false
-                    tap_action:
-                      action: none
-                    styles:
-                      card:
-                        - padding: "0"
-                        - background: transparent
-                        - border: none
-                        - box-shadow: none
-                      grid:
-                        - grid-template-areas: "\"m\""
-                        - grid-template-columns: 1fr
-                      custom_fields:
-                        m:
-                          - width: 100%
-                    custom_fields:
-                      m: <div class="box"><div class="bolla"><i class="w"></i><i class="w"></i><i class="w"></i><ha-icon icon="mdi:account-voice"></ha-icon></div><b>Conversazione in corso dal monitor</b><span>Il video riparte appena finisce la conversazione</span><div class="eq"><i></i><i></i><i></i><i></i><i></i></div></div>
-                    extra_styles: |-
+                .box { position: relative; aspect-ratio: 4 / 3; border-radius: 22px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: #fff;
+                       background: linear-gradient(#FF1744,#FF1744) top 10px left 10px / 22px 3px no-repeat, linear-gradient(#FF1744,#FF1744) top 10px left 10px / 3px 22px no-repeat, linear-gradient(#FF1744,#FF1744) top 10px right 10px / 22px 3px no-repeat, linear-gradient(#FF1744,#FF1744) top 10px right 10px / 3px 22px no-repeat, linear-gradient(#FF1744,#FF1744) bottom 10px left 10px / 22px 3px no-repeat, linear-gradient(#FF1744,#FF1744) bottom 10px left 10px / 3px 22px no-repeat, linear-gradient(#FF1744,#FF1744) bottom 10px right 10px / 22px 3px no-repeat, linear-gradient(#FF1744,#FF1744) bottom 10px right 10px / 3px 22px no-repeat, radial-gradient(60% 55% at 50% 42%, #FF174433, transparent 70%), linear-gradient(160deg, #10162c, #0b1020);
+                       box-shadow: 0 0 0 2px #FF174477, 0 0 24px #FF174444; }
+                .bolla { position: relative; width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle, #FF174455, transparent 70%); box-shadow: 0 0 0 2px #FF1744AA, 0 0 26px #FF174488; }
+                .bolla ha-icon { --mdc-icon-size: 44px; color: #fff; filter: drop-shadow(0 0 10px #FF1744); animation: vc_sh .5s ease-in-out infinite; }
+                .w { position: absolute; inset: 0; border-radius: 50%; border: 2px solid #FF1744; opacity: 0; animation: vc_onda 2s ease-out infinite; }
+                .w:nth-child(2) { animation-delay: .66s; } .w:nth-child(3) { animation-delay: 1.33s; }
+                @keyframes vc_onda { 0% { transform: scale(.9); opacity: .9; } 100% { transform: scale(2.3); opacity: 0; } }
+                @keyframes vc_sh { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-16deg); } 75% { transform: rotate(16deg); } }
+                @keyframes vc_resp { 50% { transform: scale(1.12); } }
+                .box b { font-size: 19px; font-weight: 800; text-shadow: 0 0 12px #FF1744; margin-top: 6px; } .box span { font-size: 12.5px; color: #aab6c8; padding: 0 14px; }
+                .eq { display: flex; gap: 5px; align-items: flex-end; height: 24px; margin-top: 4px; }
+                .eq i { width: 6px; border-radius: 3px; background: #FF9100; box-shadow: 0 0 6px #FF9100; animation: vc_eq .85s ease-in-out infinite; }
+                .eq i:nth-child(2) { animation-delay: .15s; } .eq i:nth-child(3) { animation-delay: .3s; } .eq i:nth-child(4) { animation-delay: .45s; } .eq i:nth-child(5) { animation-delay: .6s; }
+                @keyframes vc_eq { 0%,100% { height: 5px; } 50% { height: 24px; } }
+          - type: conditional
+            conditions:
+            - condition: state
+              entity: binary_sensor.videocitofono_occupato
+              state: 'on'
+            card:
+              type: custom:button-card
+              show_name: false
+              show_state: false
+              show_icon: false
+              tap_action:
+                action: none
+              styles:
+                card:
+                - padding: '0'
+                - background: transparent
+                - border: none
+                - box-shadow: none
+                grid:
+                - grid-template-areas: '"m"'
+                - grid-template-columns: 1fr
+                custom_fields:
+                  m:
+                  - width: 100%
+              custom_fields:
+                m: <div class="box"><div class="bolla"><i class="w"></i><i class="w"></i><i class="w"></i><ha-icon icon="mdi:account-voice"></ha-icon></div><b>Conversazione in corso dal monitor</b><span>Il video riparte appena finisce la conversazione</span><div class="eq"><i></i><i></i><i></i><i></i><i></i></div></div>
+              extra_styles: |2-
 
-                      .box { position: relative; aspect-ratio: 4 / 3; border-radius: 22px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: #fff;
-                             background: linear-gradient(#00E676,#00E676) top 10px left 10px / 22px 3px no-repeat, linear-gradient(#00E676,#00E676) top 10px left 10px / 3px 22px no-repeat, linear-gradient(#00E676,#00E676) top 10px right 10px / 22px 3px no-repeat, linear-gradient(#00E676,#00E676) top 10px right 10px / 3px 22px no-repeat, linear-gradient(#00E676,#00E676) bottom 10px left 10px / 22px 3px no-repeat, linear-gradient(#00E676,#00E676) bottom 10px left 10px / 3px 22px no-repeat, linear-gradient(#00E676,#00E676) bottom 10px right 10px / 22px 3px no-repeat, linear-gradient(#00E676,#00E676) bottom 10px right 10px / 3px 22px no-repeat, radial-gradient(60% 55% at 50% 42%, #00E67633, transparent 70%), linear-gradient(160deg, #10162c, #0b1020);
-                             box-shadow: 0 0 0 2px #00E67677, 0 0 24px #00E67644; }
-                      .bolla { position: relative; width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle, #00E67655, transparent 70%); box-shadow: 0 0 0 2px #00E676AA, 0 0 26px #00E67688; }
-                      .bolla ha-icon { --mdc-icon-size: 44px; color: #fff; filter: drop-shadow(0 0 10px #00E676); animation: vc_resp 1.6s ease-in-out infinite; }
-                      .w { position: absolute; inset: 0; border-radius: 50%; border: 2px solid #00E676; opacity: 0; animation: vc_onda 2s ease-out infinite; }
-                      .w:nth-child(2) { animation-delay: .66s; } .w:nth-child(3) { animation-delay: 1.33s; }
-                      @keyframes vc_onda { 0% { transform: scale(.9); opacity: .9; } 100% { transform: scale(2.3); opacity: 0; } }
-                      @keyframes vc_sh { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-16deg); } 75% { transform: rotate(16deg); } }
-                      @keyframes vc_resp { 50% { transform: scale(1.12); } }
-                      .box b { font-size: 19px; font-weight: 800; text-shadow: 0 0 12px #00E676; margin-top: 6px; } .box span { font-size: 12.5px; color: #aab6c8; padding: 0 14px; }
-                      .eq { display: flex; gap: 5px; align-items: flex-end; height: 24px; margin-top: 4px; }
-                      .eq i { width: 6px; border-radius: 3px; background: #69F0AE; box-shadow: 0 0 6px #69F0AE; animation: vc_eq .85s ease-in-out infinite; }
-                      .eq i:nth-child(2) { animation-delay: .15s; } .eq i:nth-child(3) { animation-delay: .3s; } .eq i:nth-child(4) { animation-delay: .45s; } .eq i:nth-child(5) { animation-delay: .6s; }
-                      @keyframes vc_eq { 0%,100% { height: 5px; } 50% { height: 24px; } }
-            - type: vertical-stack
-              cards:
-                - type: grid
-                  columns: 3
-                  square: false
-                  cards:
-                    - type: custom:button-card
-                      entity: button.videocitofono_apri_cancelletto
-                      name: Apri Cancelletto
-                      show_name: false
-                      show_state: false
-                      show_icon: false
-                      show_entity_picture: false
-                      tap_action:
-                        action: none
-                      double_tap_action:
-                        action: perform-action
-                        perform_action: button.press
-                        target:
-                          entity_id: button.videocitofono_apri_cancelletto
-                      hold_action:
-                        action: none
-                      styles:
-                        card:
-                          - padding: "0"
-                          - background: transparent
-                          - border: none
-                          - box-shadow: none
-                        grid:
-                          - grid-template-areas: "\"cg\""
-                          - grid-template-columns: 1fr
-                        custom_fields:
-                          cg:
-                            - width: 100%
-                      custom_fields:
-                        cg: |-
-                          [[[
+                .box { position: relative; aspect-ratio: 4 / 3; border-radius: 22px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: #fff;
+                       background: linear-gradient(#00E676,#00E676) top 10px left 10px / 22px 3px no-repeat, linear-gradient(#00E676,#00E676) top 10px left 10px / 3px 22px no-repeat, linear-gradient(#00E676,#00E676) top 10px right 10px / 22px 3px no-repeat, linear-gradient(#00E676,#00E676) top 10px right 10px / 3px 22px no-repeat, linear-gradient(#00E676,#00E676) bottom 10px left 10px / 22px 3px no-repeat, linear-gradient(#00E676,#00E676) bottom 10px left 10px / 3px 22px no-repeat, linear-gradient(#00E676,#00E676) bottom 10px right 10px / 22px 3px no-repeat, linear-gradient(#00E676,#00E676) bottom 10px right 10px / 3px 22px no-repeat, radial-gradient(60% 55% at 50% 42%, #00E67633, transparent 70%), linear-gradient(160deg, #10162c, #0b1020);
+                       box-shadow: 0 0 0 2px #00E67677, 0 0 24px #00E67644; }
+                .bolla { position: relative; width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle, #00E67655, transparent 70%); box-shadow: 0 0 0 2px #00E676AA, 0 0 26px #00E67688; }
+                .bolla ha-icon { --mdc-icon-size: 44px; color: #fff; filter: drop-shadow(0 0 10px #00E676); animation: vc_resp 1.6s ease-in-out infinite; }
+                .w { position: absolute; inset: 0; border-radius: 50%; border: 2px solid #00E676; opacity: 0; animation: vc_onda 2s ease-out infinite; }
+                .w:nth-child(2) { animation-delay: .66s; } .w:nth-child(3) { animation-delay: 1.33s; }
+                @keyframes vc_onda { 0% { transform: scale(.9); opacity: .9; } 100% { transform: scale(2.3); opacity: 0; } }
+                @keyframes vc_sh { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-16deg); } 75% { transform: rotate(16deg); } }
+                @keyframes vc_resp { 50% { transform: scale(1.12); } }
+                .box b { font-size: 19px; font-weight: 800; text-shadow: 0 0 12px #00E676; margin-top: 6px; } .box span { font-size: 12.5px; color: #aab6c8; padding: 0 14px; }
+                .eq { display: flex; gap: 5px; align-items: flex-end; height: 24px; margin-top: 4px; }
+                .eq i { width: 6px; border-radius: 3px; background: #69F0AE; box-shadow: 0 0 6px #69F0AE; animation: vc_eq .85s ease-in-out infinite; }
+                .eq i:nth-child(2) { animation-delay: .15s; } .eq i:nth-child(3) { animation-delay: .3s; } .eq i:nth-child(4) { animation-delay: .45s; } .eq i:nth-child(5) { animation-delay: .6s; }
+                @keyframes vc_eq { 0%,100% { height: 5px; } 50% { height: 24px; } }
+        - type: vertical-stack
+          cards:
+          - type: grid
+            columns: 3
+            square: false
+            cards:
+            - type: custom:button-card
+              entity: button.videocitofono_apri_cancelletto
+              name: Apri Cancelletto
+              show_name: false
+              show_state: false
+              show_icon: false
+              show_entity_picture: false
+              tap_action:
+                action: none
+              double_tap_action:
+                action: perform-action
+                perform_action: button.press
+                target:
+                  entity_id: button.videocitofono_apri_cancelletto
+              hold_action:
+                action: none
+              styles:
+                card:
+                - padding: '0'
+                - background: transparent
+                - border: none
+                - box-shadow: none
+                grid:
+                - grid-template-areas: '"cg"'
+                - grid-template-columns: 1fr
+                custom_fields:
+                  cg:
+                  - width: 100%
+              custom_fields:
+                cg: |-
+                  [[[
 
-                          const s = states['binary_sensor.videocitofono_connesso']?.state === 'on' ? 'off' : 'unavailable';
-                          const na = !s || s === 'unavailable' || s === 'unknown';
-                          // ora dell'ultimo VERO impulso (sensore template): last_changed si azzera ai riavvii di HA
-                          const t0 = Date.parse(states['button.videocitofono_apri_cancelletto']?.state);
-                          let el = isNaN(t0) ? 1e9 : (Date.now() - t0) / 1000;
-                          if (s === 'on' && el > 5) el = 0;  // impulso appena dato, sensore non ancora arrivato
-                          const att = !na && (s === 'on' || el < 8);
-                          return `<div class="pt"><div class="cg ct ${na ? 'na' : att ? 'att' : ''}" style="--c0:${na ? '#7a7891' : '#39E58C'};--d:${att ? (-Math.max(0, el)).toFixed(2) : 0}s">
-                            <svg viewBox="0 0 64 40">
-                              <path class="suolo" d="M1 36.5 H63"/>
-                              <rect x="1" y="14" width="12" height="22.5" class="pil" opacity=".55"/>
-                              <rect x="51" y="14" width="12" height="22.5" class="pil" opacity=".55"/>
-                              <rect x="18" y="8" width="28" height="28.5" class="vano"/>
-                              <rect x="13" y="7" width="5" height="29.5" rx=".6" class="pil"/>
-                              <rect x="46" y="7" width="5" height="29.5" rx=".6" class="pil"/>
-                              <rect x="11.5" y="4.6" width="41" height="3" rx=".5" class="arch"/>
-                              <path class="cop" d="M10.5 4.8 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0"/>
-                              <circle class="lume" cx="49.6" cy="10" r="1.1"/>
-                              <g class="pt"><path class="tel" d="M18.5 14.0 Q32 6.0 45.5 14.0"/><path class="tel fn" d="M18.5 19 Q32 13.5 45.5 19"/><path class="tel" d="M18.5 14.0 V35.3 H45.5 V14.0 M18.5 30 H45.5"/><path class="bar fb" d="M21.5 35.3 V11.12"/><path class="lan" d="M20.6 11.12 l.9 -2.3 l.9 2.3 z"/><circle class="pal" cx="21.5" cy="25" r=".85"/><path class="bar fb" d="M25 35.3 V9.78"/><path class="lan" d="M24.1 9.78 l.9 -2.3 l.9 2.3 z"/><circle class="pal" cx="25" cy="25" r=".85"/><path class="bar fb" d="M28.5 35.3 V8.97"/><path class="lan" d="M27.6 8.97 l.9 -2.3 l.9 2.3 z"/><circle class="pal" cx="28.5" cy="25" r=".85"/><path class="bar fb" d="M32 35.3 V8.7"/><path class="lan" d="M31.1 8.7 l.9 -2.3 l.9 2.3 z"/><circle class="pal" cx="32" cy="25" r=".85"/><path class="bar fb" d="M35.5 35.3 V8.97"/><path class="lan" d="M34.6 8.97 l.9 -2.3 l.9 2.3 z"/><circle class="pal" cx="35.5" cy="25" r=".85"/><path class="bar fb" d="M39 35.3 V9.78"/><path class="lan" d="M38.1 9.78 l.9 -2.3 l.9 2.3 z"/><circle class="pal" cx="39" cy="25" r=".85"/><path class="bar fb" d="M42.5 35.3 V11.12"/><path class="lan" d="M41.6 11.12 l.9 -2.3 l.9 2.3 z"/><circle class="pal" cx="42.5" cy="25" r=".85"/><path class="bar fb" d="M23.25 35.3 V29"/><path class="den" d="M22.45 28.2 l.8 .9 l.8 -.9"/><path class="bar fb" d="M26.75 35.3 V29"/><path class="den" d="M25.95 28.2 l.8 .9 l.8 -.9"/><path class="bar fb" d="M30.25 35.3 V29"/><path class="den" d="M29.45 28.2 l.8 .9 l.8 -.9"/><path class="bar fb" d="M33.75 35.3 V29"/><path class="den" d="M32.95 28.2 l.8 .9 l.8 -.9"/><path class="bar fb" d="M37.25 35.3 V29"/><path class="den" d="M36.45 28.2 l.8 .9 l.8 -.9"/><path class="bar fb" d="M40.75 35.3 V29"/><path class="den" d="M39.95 28.2 l.8 .9 l.8 -.9"/><path class="ric" d="M32 14.6 c-.4 -2.6 -3.6 -2.6 -3.4 -.5 c.2 1.4 1.8 1.1 1.6 .1 M32 14.6 c.4 -2.6 3.6 -2.6 3.4 -.5 c-.2 1.4 -1.8 1.1 -1.6 .1"/><rect x="41.2" y="22.6" width="2.6" height="2.4" rx=".8" class="man"/></g>
-                              <rect x="46.6" y="21" width="3.6" height="6.5" rx="1" class="ser"/>
-                              <g class="bz"><path d="M52 16 l2 1.5 l-2 1.5 l2 1.5 l-2 1.5 l2 1.5 l-2 1.5"/><path d="M56 15 l2 1.5 l-2 1.5 l2 1.5 l-2 1.5 l2 1.5 l-2 1.5 l2 1.5"/></g>
-                              <path class="lk" d="M54.5 7 v-1.8 a2.2 2.2 0 0 1 4.4 0 V7 M54 7 h5.4 v4.4 h-5.4 z"/>
-                            </svg>
-                            <div class="tt"><div class="nm">Apri Cancelletto</div>
-                              <div class="tx">${na ? '<span class="fine">OFFLINE</span>' : '<span class="t1">SBLOCCATO</span><span class="t2">APERTO</span><span class="fine">PRONTO</span>'}</div></div>
-                          </div><small>doppio tocco</small></div>`;
-                          ]]]
-                      extra_styles: |-
+                  const s = states['binary_sensor.videocitofono_connesso']?.state === 'on' ? 'off' : 'unavailable';
+                  const na = !s || s === 'unavailable' || s === 'unknown';
+                  // ora dell'ultimo VERO impulso (sensore template): last_changed si azzera ai riavvii di HA
+                  const t0 = Date.parse(states['button.videocitofono_apri_cancelletto']?.state);
+                  let el = isNaN(t0) ? 1e9 : (Date.now() - t0) / 1000;
+                  if (s === 'on' && el > 5) el = 0;  // impulso appena dato, sensore non ancora arrivato
+                  const att = !na && (s === 'on' || el < 8);
+                  return `<div class="pt"><div class="cg ct ${na ? 'na' : att ? 'att' : ''}" style="--c0:${na ? '#7a7891' : '#39E58C'};--d:${att ? (-Math.max(0, el)).toFixed(2) : 0}s">
+                    <svg viewBox="0 0 64 40">
+                      <path class="suolo" d="M1 36.5 H63"/>
+                      <rect x="1" y="14" width="12" height="22.5" class="pil" opacity=".55"/>
+                      <rect x="51" y="14" width="12" height="22.5" class="pil" opacity=".55"/>
+                      <rect x="18" y="8" width="28" height="28.5" class="vano"/>
+                      <rect x="13" y="7" width="5" height="29.5" rx=".6" class="pil"/>
+                      <rect x="46" y="7" width="5" height="29.5" rx=".6" class="pil"/>
+                      <rect x="11.5" y="4.6" width="41" height="3" rx=".5" class="arch"/>
+                      <path class="cop" d="M10.5 4.8 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0 q1.4 -2 2.8 0"/>
+                      <circle class="lume" cx="49.6" cy="10" r="1.1"/>
+                      <g class="pt"><path class="tel" d="M18.5 14.0 Q32 6.0 45.5 14.0"/><path class="tel fn" d="M18.5 19 Q32 13.5 45.5 19"/><path class="tel" d="M18.5 14.0 V35.3 H45.5 V14.0 M18.5 30 H45.5"/><path class="bar fb" d="M21.5 35.3 V11.12"/><path class="lan" d="M20.6 11.12 l.9 -2.3 l.9 2.3 z"/><circle class="pal" cx="21.5" cy="25" r=".85"/><path class="bar fb" d="M25 35.3 V9.78"/><path class="lan" d="M24.1 9.78 l.9 -2.3 l.9 2.3 z"/><circle class="pal" cx="25" cy="25" r=".85"/><path class="bar fb" d="M28.5 35.3 V8.97"/><path class="lan" d="M27.6 8.97 l.9 -2.3 l.9 2.3 z"/><circle class="pal" cx="28.5" cy="25" r=".85"/><path class="bar fb" d="M32 35.3 V8.7"/><path class="lan" d="M31.1 8.7 l.9 -2.3 l.9 2.3 z"/><circle class="pal" cx="32" cy="25" r=".85"/><path class="bar fb" d="M35.5 35.3 V8.97"/><path class="lan" d="M34.6 8.97 l.9 -2.3 l.9 2.3 z"/><circle class="pal" cx="35.5" cy="25" r=".85"/><path class="bar fb" d="M39 35.3 V9.78"/><path class="lan" d="M38.1 9.78 l.9 -2.3 l.9 2.3 z"/><circle class="pal" cx="39" cy="25" r=".85"/><path class="bar fb" d="M42.5 35.3 V11.12"/><path class="lan" d="M41.6 11.12 l.9 -2.3 l.9 2.3 z"/><circle class="pal" cx="42.5" cy="25" r=".85"/><path class="bar fb" d="M23.25 35.3 V29"/><path class="den" d="M22.45 28.2 l.8 .9 l.8 -.9"/><path class="bar fb" d="M26.75 35.3 V29"/><path class="den" d="M25.95 28.2 l.8 .9 l.8 -.9"/><path class="bar fb" d="M30.25 35.3 V29"/><path class="den" d="M29.45 28.2 l.8 .9 l.8 -.9"/><path class="bar fb" d="M33.75 35.3 V29"/><path class="den" d="M32.95 28.2 l.8 .9 l.8 -.9"/><path class="bar fb" d="M37.25 35.3 V29"/><path class="den" d="M36.45 28.2 l.8 .9 l.8 -.9"/><path class="bar fb" d="M40.75 35.3 V29"/><path class="den" d="M39.95 28.2 l.8 .9 l.8 -.9"/><path class="ric" d="M32 14.6 c-.4 -2.6 -3.6 -2.6 -3.4 -.5 c.2 1.4 1.8 1.1 1.6 .1 M32 14.6 c.4 -2.6 3.6 -2.6 3.4 -.5 c-.2 1.4 -1.8 1.1 -1.6 .1"/><rect x="41.2" y="22.6" width="2.6" height="2.4" rx=".8" class="man"/></g>
+                      <rect x="46.6" y="21" width="3.6" height="6.5" rx="1" class="ser"/>
+                      <g class="bz"><path d="M52 16 l2 1.5 l-2 1.5 l2 1.5 l-2 1.5 l2 1.5 l-2 1.5"/><path d="M56 15 l2 1.5 l-2 1.5 l2 1.5 l-2 1.5 l2 1.5 l-2 1.5 l2 1.5"/></g>
+                      <path class="lk" d="M54.5 7 v-1.8 a2.2 2.2 0 0 1 4.4 0 V7 M54 7 h5.4 v4.4 h-5.4 z"/>
+                    </svg>
+                    <div class="tt"><div class="nm">Apri Cancelletto</div>
+                      <div class="tx">${na ? '<span class="fine">OFFLINE</span>' : '<span class="t1">SBLOCCATO</span><span class="t2">APERTO</span><span class="fine">PRONTO</span>'}</div></div>
+                  </div><small>doppio tocco</small></div>`;
+                  ]]]
+              extra_styles: |2-
 
-                        .cg { position: relative; display: flex; align-items: center; gap: 8px; height: 100%; box-sizing: border-box; padding: 0 10px 0 8px;
-                              border-radius: 12px; color: var(--c0);
-                              background: radial-gradient(75% 130% at 22% 50%, color-mix(in srgb, currentColor 22%, transparent), transparent 72%);
-                              box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 35%, transparent); }
-                        .cg.att { animation: var(--fc) var(--D) linear forwards; animation-delay: var(--d); }
-                        .cg svg { width: 60px; height: 38px; flex: none; overflow: visible; filter: drop-shadow(0 0 3px color-mix(in srgb, currentColor 70%, transparent)); }
-                        .cg .tt { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
-                        .cg .nm { font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; }
-                        .cg .tx { display: grid; font-size: 10px; font-weight: 800; letter-spacing: .6px; white-space: nowrap; }
-                        .cg .tx span { grid-area: 1 / 1; opacity: 0; }
-                        .cg:not(.att) .tx .fine { opacity: 1; }
-                        .cg.att .tx span { animation: var(--fs) var(--D) linear forwards; animation-delay: var(--d); }
-                        .cg .suolo { stroke: rgba(255,255,255,.35); stroke-width: 1.2; stroke-linecap: round; }
-                        .cg .pil { fill: #2c2a40; stroke: rgba(255,255,255,.55); stroke-width: 1.2; }
-                        .cg .bar { stroke: rgba(255,255,255,.75); stroke-width: 1.3; stroke-linecap: round; }
-                        .cg .tel { fill: none; stroke: currentColor; stroke-width: 1.8; }
-                        .cg .luc { fill: #3a3850; }
-                        .cg.att .lmp { animation: cg_spegni var(--D) linear forwards; animation-delay: var(--d); }
-                        .cg:not(.att) .lmp { opacity: 0; }
-                        .cg .lmp circle { fill: #FFBF00; filter: drop-shadow(0 0 3px #FFBF00); animation: cg_blink .55s steps(2, jump-none) infinite; }
-                        .cg .lmp path { stroke: #FFBF00; stroke-width: 1; stroke-linecap: round; animation: cg_blink .55s steps(2, jump-none) infinite; }
-                        @keyframes cg_blink { 0% { opacity: 1; } 100% { opacity: .1; } }
-                        .cg .lk { fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; }
-                        .cg.att .lk { opacity: 0; }
-                        .cg.na { --c0: #7a7891; }
-                        .cg.na .tel, .cg.na .bar { opacity: .4; }
-                        @media (prefers-reduced-motion: reduce) { .cg, .cg * { animation: none !important; } }
+                .cg { position: relative; display: flex; align-items: center; gap: 8px; height: 100%; box-sizing: border-box; padding: 0 10px 0 8px;
+                      border-radius: 12px; color: var(--c0);
+                      background: radial-gradient(75% 130% at 22% 50%, color-mix(in srgb, currentColor 22%, transparent), transparent 72%);
+                      box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 35%, transparent); }
+                .cg.att { animation: var(--fc) var(--D) linear forwards; animation-delay: var(--d); }
+                .cg svg { width: 60px; height: 38px; flex: none; overflow: visible; filter: drop-shadow(0 0 3px color-mix(in srgb, currentColor 70%, transparent)); }
+                .cg .tt { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+                .cg .nm { font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; }
+                .cg .tx { display: grid; font-size: 10px; font-weight: 800; letter-spacing: .6px; white-space: nowrap; }
+                .cg .tx span { grid-area: 1 / 1; opacity: 0; }
+                .cg:not(.att) .tx .fine { opacity: 1; }
+                .cg.att .tx span { animation: var(--fs) var(--D) linear forwards; animation-delay: var(--d); }
+                .cg .suolo { stroke: rgba(255,255,255,.35); stroke-width: 1.2; stroke-linecap: round; }
+                .cg .pil { fill: #2c2a40; stroke: rgba(255,255,255,.55); stroke-width: 1.2; }
+                .cg .bar { stroke: rgba(255,255,255,.75); stroke-width: 1.3; stroke-linecap: round; }
+                .cg .tel { fill: none; stroke: currentColor; stroke-width: 1.8; }
+                .cg .luc { fill: #3a3850; }
+                .cg.att .lmp { animation: cg_spegni var(--D) linear forwards; animation-delay: var(--d); }
+                .cg:not(.att) .lmp { opacity: 0; }
+                .cg .lmp circle { fill: #FFBF00; filter: drop-shadow(0 0 3px #FFBF00); animation: cg_blink .55s steps(2, jump-none) infinite; }
+                .cg .lmp path { stroke: #FFBF00; stroke-width: 1; stroke-linecap: round; animation: cg_blink .55s steps(2, jump-none) infinite; }
+                @keyframes cg_blink { 0% { opacity: 1; } 100% { opacity: .1; } }
+                .cg .lk { fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; }
+                .cg.att .lk { opacity: 0; }
+                .cg.na { --c0: #7a7891; }
+                .cg.na .tel, .cg.na .bar { opacity: .4; }
+                @media (prefers-reduced-motion: reduce) { .cg, .cg * { animation: none !important; } }
 
-                        .ct { --fc: ct_col; --D: 8s; }
-                        @keyframes ct_col { 0%, 85% { color: #FFBF00; box-shadow: 0 0 12px color-mix(in srgb, #FFBF00 55%, transparent), inset 0 0 0 1px #FFBF00; }
-                                            100% { color: #39E58C; box-shadow: inset 0 0 0 1px color-mix(in srgb, #39E58C 35%, transparent); } }
-                        .ct .pt { transform-box: fill-box; transform-origin: 0 50%; }
-                        .ct.att .pt { animation: ct_pt 8s ease-in-out forwards; animation-delay: var(--d); }
-                        @keyframes ct_pt { 0%, 8% { transform: none; } 30%, 60% { transform: scaleX(.38) skewY(-9deg); } 85%, 100% { transform: none; } }
-                        .ct .vano { fill: #07060d; }
-                        .ct .pt .tel { stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; } .ct .pt .tel.fn { stroke-width: .8; opacity: .8; }
-                        .ct .bar.fb { stroke-width: .75; stroke: rgba(255,255,255,.7); }
-                        .ct .lan { fill: rgba(255,255,255,.85); }
-                        .ct .pal { fill: rgba(255,255,255,.85); }
-                        .ct .den { fill: none; stroke: rgba(255,255,255,.75); stroke-width: .6; stroke-linecap: round; }
-                        .ct .ric { fill: none; stroke: currentColor; stroke-width: .85; stroke-linecap: round; }
-                        .ct .arch { fill: #3a3754; stroke: rgba(255,255,255,.45); stroke-width: .8; }
-                        .ct .cop { fill: none; stroke: #d9825b; stroke-width: 1.1; stroke-linecap: round; }
-                        .ct .lume { fill: #FFD58A; filter: drop-shadow(0 0 2.5px #FFC060); }
-                        .cg.na .lan, .cg.na .pal, .cg.na .ric, .cg.na .den { opacity: .4; }
-                        .ct .ser { fill: #2c2a40; stroke: currentColor; stroke-width: 1; }
-                        .ct .bz { fill: none; stroke: #FFBF00; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
-                        .ct.att .bz { animation: ct_bz 8s linear forwards; animation-delay: var(--d); }
-                        .ct.att .bz path { animation: ct_vib .12s linear infinite alternate; }
-                        @keyframes ct_bz { 0%, 30% { opacity: 1; } 31%, 100% { opacity: 0; } }
-                        @keyframes ct_vib { to { transform: translateY(-1px); } }
-                        .ct .man { fill: currentColor; }
-                        .ct .t1 { --fs: ct_t1; } .ct .t2 { --fs: ct_t2; } .ct .fine { --fs: ct_t3; }
-                        .ct .lmp { display: none; }
-                        @keyframes ct_t1 { 0% { opacity: 1; } 30% { opacity: 1; } 30.1% { opacity: 0; } 100% { opacity: 0; } }
-                        @keyframes ct_t2 { 0% { opacity: 0; } 29.9% { opacity: 0; } 30% { opacity: 1; } 85% { opacity: 1; } 85.1% { opacity: 0; } 100% { opacity: 0; } }
-                        @keyframes ct_t3 { 0% { opacity: 0; } 84.9% { opacity: 0; } 85% { opacity: 1; } 100% { opacity: 1; } }
+                .ct { --fc: ct_col; --D: 8s; }
+                @keyframes ct_col { 0%, 85% { color: #FFBF00; box-shadow: 0 0 12px color-mix(in srgb, #FFBF00 55%, transparent), inset 0 0 0 1px #FFBF00; }
+                                    100% { color: #39E58C; box-shadow: inset 0 0 0 1px color-mix(in srgb, #39E58C 35%, transparent); } }
+                .ct .pt { transform-box: fill-box; transform-origin: 0 50%; }
+                .ct.att .pt { animation: ct_pt 8s ease-in-out forwards; animation-delay: var(--d); }
+                @keyframes ct_pt { 0%, 8% { transform: none; } 30%, 60% { transform: scaleX(.38) skewY(-9deg); } 85%, 100% { transform: none; } }
+                .ct .vano { fill: #07060d; }
+                .ct .pt .tel { stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; } .ct .pt .tel.fn { stroke-width: .8; opacity: .8; }
+                .ct .bar.fb { stroke-width: .75; stroke: rgba(255,255,255,.7); }
+                .ct .lan { fill: rgba(255,255,255,.85); }
+                .ct .pal { fill: rgba(255,255,255,.85); }
+                .ct .den { fill: none; stroke: rgba(255,255,255,.75); stroke-width: .6; stroke-linecap: round; }
+                .ct .ric { fill: none; stroke: currentColor; stroke-width: .85; stroke-linecap: round; }
+                .ct .arch { fill: #3a3754; stroke: rgba(255,255,255,.45); stroke-width: .8; }
+                .ct .cop { fill: none; stroke: #d9825b; stroke-width: 1.1; stroke-linecap: round; }
+                .ct .lume { fill: #FFD58A; filter: drop-shadow(0 0 2.5px #FFC060); }
+                .cg.na .lan, .cg.na .pal, .cg.na .ric, .cg.na .den { opacity: .4; }
+                .ct .ser { fill: #2c2a40; stroke: currentColor; stroke-width: 1; }
+                .ct .bz { fill: none; stroke: #FFBF00; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+                .ct.att .bz { animation: ct_bz 8s linear forwards; animation-delay: var(--d); }
+                .ct.att .bz path { animation: ct_vib .12s linear infinite alternate; }
+                @keyframes ct_bz { 0%, 30% { opacity: 1; } 31%, 100% { opacity: 0; } }
+                @keyframes ct_vib { to { transform: translateY(-1px); } }
+                .ct .man { fill: currentColor; }
+                .ct .t1 { --fs: ct_t1; } .ct .t2 { --fs: ct_t2; } .ct .fine { --fs: ct_t3; }
+                .ct .lmp { display: none; }
+                @keyframes ct_t1 { 0% { opacity: 1; } 30% { opacity: 1; } 30.1% { opacity: 0; } 100% { opacity: 0; } }
+                @keyframes ct_t2 { 0% { opacity: 0; } 29.9% { opacity: 0; } 30% { opacity: 1; } 85% { opacity: 1; } 85.1% { opacity: 0; } 100% { opacity: 0; } }
+                @keyframes ct_t3 { 0% { opacity: 0; } 84.9% { opacity: 0; } 85% { opacity: 1; } 100% { opacity: 1; } }
 
-                        .pt { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 4px 9px; border-radius: 20px; overflow: hidden; color: #fff;
-                              background: radial-gradient(90% 70% at 50% 0%, #00E67638, transparent 70%), linear-gradient(160deg, #141c38, #0b1020);
-                              box-shadow: inset 0 0 0 1px #00E67688, 0 0 16px #00E67633; transition: transform .15s; }
-                        .pt::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.10) 50%, transparent 65%); transform: translateX(-100%); animation: vc_luce 5s ease-in-out infinite; pointer-events: none; }
-                        @keyframes vc_luce { 60%,100% { transform: translateX(100%); } }
-                        ha-card:active .pt { transform: scale(.92); box-shadow: inset 0 0 0 2px #00E676, 0 0 26px #00E67688; }
-                        .pt .cg { flex-direction: column; height: auto; padding: 0; gap: 3px; background: none !important; box-shadow: none !important; }
-                        .pt .cg svg { width: 86px; height: 54px; }
-                        .pt .cg .tt { align-items: center; text-align: center; }
-                        .pt .cg .nm { font-size: 12.5px; font-weight: 800; }
-                        .pt .cg .tx { justify-items: center; font-size: 9.5px; }
-                        .pt small { font-size: 9.5px; color: #8a96aa; letter-spacing: .4px; }
-                    - type: custom:button-card
-                      entity: button.videocitofono_apri_cancello
-                      name: Apri Cancello
-                      show_name: false
-                      show_state: false
-                      show_icon: false
-                      show_entity_picture: false
-                      tap_action:
-                        action: none
-                      double_tap_action:
-                        action: perform-action
-                        perform_action: button.press
-                        target:
-                          entity_id: button.videocitofono_apri_cancello
-                      hold_action:
-                        action: none
-                      styles:
-                        card:
-                          - padding: "0"
-                          - background: transparent
-                          - border: none
-                          - box-shadow: none
-                        grid:
-                          - grid-template-areas: "\"cg\""
-                          - grid-template-columns: 1fr
-                        custom_fields:
-                          cg:
-                            - width: 100%
-                      custom_fields:
-                        cg: |-
-                          [[[
+                .pt { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 4px 9px; border-radius: 20px; overflow: hidden; color: #fff;
+                      background: radial-gradient(90% 70% at 50% 0%, #00E67638, transparent 70%), linear-gradient(160deg, #141c38, #0b1020);
+                      box-shadow: inset 0 0 0 1px #00E67688, 0 0 16px #00E67633; transition: transform .15s; }
+                .pt::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.10) 50%, transparent 65%); transform: translateX(-100%); animation: vc_luce 5s ease-in-out infinite; pointer-events: none; }
+                @keyframes vc_luce { 60%,100% { transform: translateX(100%); } }
+                ha-card:active .pt { transform: scale(.92); box-shadow: inset 0 0 0 2px #00E676, 0 0 26px #00E67688; }
+                .pt .cg { flex-direction: column; height: auto; padding: 0; gap: 3px; background: none !important; box-shadow: none !important; }
+                .pt .cg svg { width: 86px; height: 54px; }
+                .pt .cg .tt { align-items: center; text-align: center; }
+                .pt .cg .nm { font-size: 12.5px; font-weight: 800; }
+                .pt .cg .tx { justify-items: center; font-size: 9.5px; }
+                .pt small { font-size: 9.5px; color: #8a96aa; letter-spacing: .4px; }
+            - type: custom:button-card
+              entity: button.videocitofono_apri_cancello
+              name: Apri Cancello
+              show_name: false
+              show_state: false
+              show_icon: false
+              show_entity_picture: false
+              tap_action:
+                action: none
+              double_tap_action:
+                action: perform-action
+                perform_action: button.press
+                target:
+                  entity_id: button.videocitofono_apri_cancello
+              hold_action:
+                action: none
+              styles:
+                card:
+                - padding: '0'
+                - background: transparent
+                - border: none
+                - box-shadow: none
+                grid:
+                - grid-template-areas: '"cg"'
+                - grid-template-columns: 1fr
+                custom_fields:
+                  cg:
+                  - width: 100%
+              custom_fields:
+                cg: |-
+                  [[[
 
-                          const s = states['binary_sensor.videocitofono_connesso']?.state === 'on' ? 'off' : 'unavailable';
-                          const na = !s || s === 'unavailable' || s === 'unknown';
-                          // ora dell'ultimo VERO impulso (sensore template): last_changed si azzera ai riavvii di HA
-                          const t0 = Date.parse(states['button.videocitofono_apri_cancello']?.state);
-                          let el = isNaN(t0) ? 1e9 : (Date.now() - t0) / 1000;
-                          if (s === 'on' && el > 5) el = 0;  // impulso appena dato, sensore non ancora arrivato
-                          const att = !na && (s === 'on' || el < 73);
-                          return `<div class="pt"><div class="cg cn ${na ? 'na' : att ? 'att' : ''}" style="--c0:${na ? '#7a7891' : '#39E58C'};--d:${att ? (-Math.max(0, el)).toFixed(2) : 0}s">
-                            <svg viewBox="0 0 64 40">
-                              <path class="suolo" d="M1 36.5 H63"/>
-                              <circle cx="14" cy="36" r="1.3" class="luc"/><circle cx="50" cy="36" r="1.3" class="luc"/>
-                              <g class="an asx"><path class="tel" d="M8.3 16.5 Q22.0 17.0 31.7 8.5"/><path class="tel fn" d="M8.3 21.0 Q22.0 21.5 31.7 13.0"/><path class="tel" d="M8.3 34.6 H31.7 M8.3 30.5 H31.7 M8.3 16.5 V34.6"/><path class="tel cst" d="M31.7 7.0 V34.8"/><path class="bar fb" d="M11 34.6 V15.31"/><path class="lan" d="M10.1 15.31 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M14 34.6 V15.1"/><path class="lan" d="M13.1 15.1 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M17 34.6 V14.63"/><path class="lan" d="M16.1 14.63 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M20 34.6 V13.87"/><path class="lan" d="M19.1 13.87 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M23 34.6 V12.79"/><path class="lan" d="M22.1 12.79 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M26 34.6 V11.33"/><path class="lan" d="M25.1 11.33 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M29 34.6 V9.44"/><path class="lan" d="M28.1 9.44 l.9 -2.3 l.9 2.3 z"/><path class="lan" d="M30.599999999999998 7.0 l1.1 -2.6 l1.1 2.6 z"/><path class="ric" d="M31.7 14.5 c-2.8 .2 -3.8 -2.7 -1.7 -3.7 c1.3 -.6 2.3 .7 1.4 1.5"/></g>
-                              <g class="an adx"><g transform="translate(64 0) scale(-1 1)"><path class="tel" d="M8.3 16.5 Q22.0 17.0 31.7 8.5"/><path class="tel fn" d="M8.3 21.0 Q22.0 21.5 31.7 13.0"/><path class="tel" d="M8.3 34.6 H31.7 M8.3 30.5 H31.7 M8.3 16.5 V34.6"/><path class="tel cst" d="M31.7 7.0 V34.8"/><path class="bar fb" d="M11 34.6 V15.31"/><path class="lan" d="M10.1 15.31 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M14 34.6 V15.1"/><path class="lan" d="M13.1 15.1 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M17 34.6 V14.63"/><path class="lan" d="M16.1 14.63 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M20 34.6 V13.87"/><path class="lan" d="M19.1 13.87 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M23 34.6 V12.79"/><path class="lan" d="M22.1 12.79 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M26 34.6 V11.33"/><path class="lan" d="M25.1 11.33 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M29 34.6 V9.44"/><path class="lan" d="M28.1 9.44 l.9 -2.3 l.9 2.3 z"/><path class="lan" d="M30.599999999999998 7.0 l1.1 -2.6 l1.1 2.6 z"/><path class="ric" d="M31.7 14.5 c-2.8 .2 -3.8 -2.7 -1.7 -3.7 c1.3 -.6 2.3 .7 1.4 1.5"/></g></g>
-                              <rect x="1.5" y="11" width="6" height="25.5" rx=".6" class="pil"/><path class="cap" d="M.6 11.2 L4.5 7.6 L8.4 11.2 Z"/>
-                              <rect x="56.5" y="11" width="6" height="25.5" rx=".6" class="pil"/><path class="cap" d="M55.6 11.2 L59.5 7.6 L63.4 11.2 Z"/>
-                              <g class="lmp"><circle cx="4.5" cy="4.6" r="2.4"/><path d="M0.5 1 l1.3 1.2 M8.5 1 l-1.3 1.2 M4.5 -0.6 v1.1"/></g>
-                              <path class="lk" d="M57.5 6 v-1.6 a2 2 0 0 1 4 0 V6 M57 6 h5"/>
-                              <path class="frc fa" d="M29 24 h-9 m3 -3 l-3 3 l3 3 M35 24 h9 m-3 -3 l3 3 l-3 3"/>
-                              <path class="frc fc" d="M20 24 h9 m-3 -3 l3 3 l-3 3 M44 24 h-9 m3 -3 l-3 3 l3 3"/>
-                            </svg>
-                            <div class="tt"><div class="nm">Apri Cancello</div>
-                              <div class="tx">${na ? '<span class="fine">OFFLINE</span>' : '<span class="t1">APERTURA…</span><span class="t2">APERTO</span><span class="t3">CHIUSURA…</span><span class="fine">PRONTO</span>'}</div></div>
-                          </div><small>doppio tocco</small></div>`;
-                          ]]]
-                      extra_styles: |-
+                  const s = states['binary_sensor.videocitofono_connesso']?.state === 'on' ? 'off' : 'unavailable';
+                  const na = !s || s === 'unavailable' || s === 'unknown';
+                  // ora dell'ultimo VERO impulso (sensore template): last_changed si azzera ai riavvii di HA
+                  const t0 = Date.parse(states['button.videocitofono_apri_cancello']?.state);
+                  let el = isNaN(t0) ? 1e9 : (Date.now() - t0) / 1000;
+                  if (s === 'on' && el > 5) el = 0;  // impulso appena dato, sensore non ancora arrivato
+                  const att = !na && (s === 'on' || el < 73);
+                  return `<div class="pt"><div class="cg cn ${na ? 'na' : att ? 'att' : ''}" style="--c0:${na ? '#7a7891' : '#39E58C'};--d:${att ? (-Math.max(0, el)).toFixed(2) : 0}s">
+                    <svg viewBox="0 0 64 40">
+                      <path class="suolo" d="M1 36.5 H63"/>
+                      <circle cx="14" cy="36" r="1.3" class="luc"/><circle cx="50" cy="36" r="1.3" class="luc"/>
+                      <g class="an asx"><path class="tel" d="M8.3 16.5 Q22.0 17.0 31.7 8.5"/><path class="tel fn" d="M8.3 21.0 Q22.0 21.5 31.7 13.0"/><path class="tel" d="M8.3 34.6 H31.7 M8.3 30.5 H31.7 M8.3 16.5 V34.6"/><path class="tel cst" d="M31.7 7.0 V34.8"/><path class="bar fb" d="M11 34.6 V15.31"/><path class="lan" d="M10.1 15.31 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M14 34.6 V15.1"/><path class="lan" d="M13.1 15.1 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M17 34.6 V14.63"/><path class="lan" d="M16.1 14.63 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M20 34.6 V13.87"/><path class="lan" d="M19.1 13.87 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M23 34.6 V12.79"/><path class="lan" d="M22.1 12.79 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M26 34.6 V11.33"/><path class="lan" d="M25.1 11.33 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M29 34.6 V9.44"/><path class="lan" d="M28.1 9.44 l.9 -2.3 l.9 2.3 z"/><path class="lan" d="M30.599999999999998 7.0 l1.1 -2.6 l1.1 2.6 z"/><path class="ric" d="M31.7 14.5 c-2.8 .2 -3.8 -2.7 -1.7 -3.7 c1.3 -.6 2.3 .7 1.4 1.5"/></g>
+                      <g class="an adx"><g transform="translate(64 0) scale(-1 1)"><path class="tel" d="M8.3 16.5 Q22.0 17.0 31.7 8.5"/><path class="tel fn" d="M8.3 21.0 Q22.0 21.5 31.7 13.0"/><path class="tel" d="M8.3 34.6 H31.7 M8.3 30.5 H31.7 M8.3 16.5 V34.6"/><path class="tel cst" d="M31.7 7.0 V34.8"/><path class="bar fb" d="M11 34.6 V15.31"/><path class="lan" d="M10.1 15.31 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M14 34.6 V15.1"/><path class="lan" d="M13.1 15.1 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M17 34.6 V14.63"/><path class="lan" d="M16.1 14.63 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M20 34.6 V13.87"/><path class="lan" d="M19.1 13.87 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M23 34.6 V12.79"/><path class="lan" d="M22.1 12.79 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M26 34.6 V11.33"/><path class="lan" d="M25.1 11.33 l.9 -2.3 l.9 2.3 z"/><path class="bar fb" d="M29 34.6 V9.44"/><path class="lan" d="M28.1 9.44 l.9 -2.3 l.9 2.3 z"/><path class="lan" d="M30.599999999999998 7.0 l1.1 -2.6 l1.1 2.6 z"/><path class="ric" d="M31.7 14.5 c-2.8 .2 -3.8 -2.7 -1.7 -3.7 c1.3 -.6 2.3 .7 1.4 1.5"/></g></g>
+                      <rect x="1.5" y="11" width="6" height="25.5" rx=".6" class="pil"/><path class="cap" d="M.6 11.2 L4.5 7.6 L8.4 11.2 Z"/>
+                      <rect x="56.5" y="11" width="6" height="25.5" rx=".6" class="pil"/><path class="cap" d="M55.6 11.2 L59.5 7.6 L63.4 11.2 Z"/>
+                      <g class="lmp"><circle cx="4.5" cy="4.6" r="2.4"/><path d="M0.5 1 l1.3 1.2 M8.5 1 l-1.3 1.2 M4.5 -0.6 v1.1"/></g>
+                      <path class="lk" d="M57.5 6 v-1.6 a2 2 0 0 1 4 0 V6 M57 6 h5"/>
+                      <path class="frc fa" d="M29 24 h-9 m3 -3 l-3 3 l3 3 M35 24 h9 m-3 -3 l3 3 l-3 3"/>
+                      <path class="frc fc" d="M20 24 h9 m-3 -3 l3 3 l-3 3 M44 24 h-9 m3 -3 l-3 3 l3 3"/>
+                    </svg>
+                    <div class="tt"><div class="nm">Apri Cancello</div>
+                      <div class="tx">${na ? '<span class="fine">OFFLINE</span>' : '<span class="t1">APERTURA…</span><span class="t2">APERTO</span><span class="t3">CHIUSURA…</span><span class="fine">PRONTO</span>'}</div></div>
+                  </div><small>doppio tocco</small></div>`;
+                  ]]]
+              extra_styles: |2-
 
-                        .cg { position: relative; display: flex; align-items: center; gap: 8px; height: 100%; box-sizing: border-box; padding: 0 10px 0 8px;
-                              border-radius: 12px; color: var(--c0);
-                              background: radial-gradient(75% 130% at 22% 50%, color-mix(in srgb, currentColor 22%, transparent), transparent 72%);
-                              box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 35%, transparent); }
-                        .cg.att { animation: var(--fc) var(--D) linear forwards; animation-delay: var(--d); }
-                        .cg svg { width: 60px; height: 38px; flex: none; overflow: visible; filter: drop-shadow(0 0 3px color-mix(in srgb, currentColor 70%, transparent)); }
-                        .cg .tt { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
-                        .cg .nm { font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; }
-                        .cg .tx { display: grid; font-size: 10px; font-weight: 800; letter-spacing: .6px; white-space: nowrap; }
-                        .cg .tx span { grid-area: 1 / 1; opacity: 0; }
-                        .cg:not(.att) .tx .fine { opacity: 1; }
-                        .cg.att .tx span { animation: var(--fs) var(--D) linear forwards; animation-delay: var(--d); }
-                        .cg .suolo { stroke: rgba(255,255,255,.35); stroke-width: 1.2; stroke-linecap: round; }
-                        .cg .pil { fill: #2c2a40; stroke: rgba(255,255,255,.55); stroke-width: 1.2; }
-                        .cg .bar { stroke: rgba(255,255,255,.75); stroke-width: 1.3; stroke-linecap: round; }
-                        .cg .tel { fill: none; stroke: currentColor; stroke-width: 1.8; }
-                        .cg .luc { fill: #3a3850; }
-                        .cg.att .lmp { animation: cg_spegni var(--D) linear forwards; animation-delay: var(--d); }
-                        .cg:not(.att) .lmp { opacity: 0; }
-                        .cg .lmp circle { fill: #FFBF00; filter: drop-shadow(0 0 3px #FFBF00); animation: cg_blink .55s steps(2, jump-none) infinite; }
-                        .cg .lmp path { stroke: #FFBF00; stroke-width: 1; stroke-linecap: round; animation: cg_blink .55s steps(2, jump-none) infinite; }
-                        @keyframes cg_blink { 0% { opacity: 1; } 100% { opacity: .1; } }
-                        .cg .lk { fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; }
-                        .cg.att .lk { opacity: 0; }
-                        .cg.na { --c0: #7a7891; }
-                        .cg.na .tel, .cg.na .bar { opacity: .4; }
-                        @media (prefers-reduced-motion: reduce) { .cg, .cg * { animation: none !important; } }
+                .cg { position: relative; display: flex; align-items: center; gap: 8px; height: 100%; box-sizing: border-box; padding: 0 10px 0 8px;
+                      border-radius: 12px; color: var(--c0);
+                      background: radial-gradient(75% 130% at 22% 50%, color-mix(in srgb, currentColor 22%, transparent), transparent 72%);
+                      box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 35%, transparent); }
+                .cg.att { animation: var(--fc) var(--D) linear forwards; animation-delay: var(--d); }
+                .cg svg { width: 60px; height: 38px; flex: none; overflow: visible; filter: drop-shadow(0 0 3px color-mix(in srgb, currentColor 70%, transparent)); }
+                .cg .tt { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+                .cg .nm { font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; }
+                .cg .tx { display: grid; font-size: 10px; font-weight: 800; letter-spacing: .6px; white-space: nowrap; }
+                .cg .tx span { grid-area: 1 / 1; opacity: 0; }
+                .cg:not(.att) .tx .fine { opacity: 1; }
+                .cg.att .tx span { animation: var(--fs) var(--D) linear forwards; animation-delay: var(--d); }
+                .cg .suolo { stroke: rgba(255,255,255,.35); stroke-width: 1.2; stroke-linecap: round; }
+                .cg .pil { fill: #2c2a40; stroke: rgba(255,255,255,.55); stroke-width: 1.2; }
+                .cg .bar { stroke: rgba(255,255,255,.75); stroke-width: 1.3; stroke-linecap: round; }
+                .cg .tel { fill: none; stroke: currentColor; stroke-width: 1.8; }
+                .cg .luc { fill: #3a3850; }
+                .cg.att .lmp { animation: cg_spegni var(--D) linear forwards; animation-delay: var(--d); }
+                .cg:not(.att) .lmp { opacity: 0; }
+                .cg .lmp circle { fill: #FFBF00; filter: drop-shadow(0 0 3px #FFBF00); animation: cg_blink .55s steps(2, jump-none) infinite; }
+                .cg .lmp path { stroke: #FFBF00; stroke-width: 1; stroke-linecap: round; animation: cg_blink .55s steps(2, jump-none) infinite; }
+                @keyframes cg_blink { 0% { opacity: 1; } 100% { opacity: .1; } }
+                .cg .lk { fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; }
+                .cg.att .lk { opacity: 0; }
+                .cg.na { --c0: #7a7891; }
+                .cg.na .tel, .cg.na .bar { opacity: .4; }
+                @media (prefers-reduced-motion: reduce) { .cg, .cg * { animation: none !important; } }
 
-                        .cn { --fc: cn_col; --D: 73s; }
-                        @keyframes cn_col { 0%, 98.6% { color: #FFBF00; box-shadow: 0 0 12px color-mix(in srgb, #FFBF00 55%, transparent), inset 0 0 0 1px #FFBF00; }
-                                            100% { color: #39E58C; box-shadow: inset 0 0 0 1px color-mix(in srgb, #39E58C 35%, transparent); } }
-                        .cn .an { transform-box: fill-box; transform: none; }
-                        .cn .an .tel { stroke-width: 1.1; stroke-linecap: round; } .cn .an .tel.fn { stroke-width: .8; opacity: .8; } .cn .an .tel.cst { stroke-width: 1.6; }
-                        .cn .bar.fb { stroke-width: .75; stroke: rgba(255,255,255,.7); }
-                        .cn .lan { fill: rgba(255,255,255,.85); }
-                        .cn .ric { fill: none; stroke: currentColor; stroke-width: .9; stroke-linecap: round; }
-                        .cn .cap { fill: #3a3754; stroke: rgba(255,255,255,.55); stroke-width: 1; stroke-linejoin: round; }
-                        .cg.na .lan, .cg.na .ric { opacity: .4; }
-                        .cn .asx { transform-origin: 0 50%; } .cn .adx { transform-origin: 100% 50%; }
-                        .cn.att .asx { animation: cn_asx 73s ease-in-out forwards; animation-delay: var(--d); }
-                        .cn.att .adx { animation: cn_adx 73s ease-in-out forwards; animation-delay: var(--d); }
-                        @keyframes cn_asx { 0% { transform: none; } 32.9%, 68.5% { transform: scaleX(.3) skewY(-11deg); } 98.6%, 100% { transform: none; } }
-                        @keyframes cn_adx { 0% { transform: none; } 32.9%, 68.5% { transform: scaleX(.3) skewY(11deg); } 98.6%, 100% { transform: none; } }
-                        .cn .t1 { --fs: cn_t1; } .cn .t2 { --fs: cn_t2; } .cn .t3 { --fs: cn_t3; } .cn .fine { --fs: cn_t4; }
-                        .cn .frc { transform-box: fill-box; transform-origin: 50% 50%; fill: none; stroke: #FFBF00; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
-                        .cn.att .fa { animation: cn_fa 73s linear forwards; animation-delay: var(--d); }
-                        .cn.att .fc { animation: cn_fc 73s linear forwards; animation-delay: var(--d); }
-                        @keyframes cg_spegni { 0%, 98.6% { opacity: 1; } 99.1%, 100% { opacity: 0; } }
-                        @keyframes cn_fa { 0% { opacity: 0; transform: scale(.7); } 2%, 29.9% { opacity: 1; transform: none; } 32.9%, 100% { opacity: 0; transform: scale(1.15); } }
-                        @keyframes cn_fc { 0%, 68.5% { opacity: 0; transform: scale(1.15); } 70.5%, 95.6% { opacity: 1; transform: none; } 98.6%, 100% { opacity: 0; transform: scale(.7); } }
-                        @keyframes cn_t1 { 0% { opacity: 1; } 32.9% { opacity: 1; } 33.0% { opacity: 0; } 100% { opacity: 0; } }
-                        @keyframes cn_t2 { 0% { opacity: 0; } 32.8% { opacity: 0; } 32.9% { opacity: 1; } 68.5% { opacity: 1; } 68.6% { opacity: 0; } 100% { opacity: 0; } }
-                        @keyframes cn_t3 { 0% { opacity: 0; } 68.4% { opacity: 0; } 68.5% { opacity: 1; } 98.6% { opacity: 1; } 98.7% { opacity: 0; } 100% { opacity: 0; } }
-                        @keyframes cn_t4 { 0% { opacity: 0; } 98.5% { opacity: 0; } 98.6% { opacity: 1; } 100% { opacity: 1; } }
+                .cn { --fc: cn_col; --D: 73s; }
+                @keyframes cn_col { 0%, 98.6% { color: #FFBF00; box-shadow: 0 0 12px color-mix(in srgb, #FFBF00 55%, transparent), inset 0 0 0 1px #FFBF00; }
+                                    100% { color: #39E58C; box-shadow: inset 0 0 0 1px color-mix(in srgb, #39E58C 35%, transparent); } }
+                .cn .an { transform-box: fill-box; transform: none; }
+                .cn .an .tel { stroke-width: 1.1; stroke-linecap: round; } .cn .an .tel.fn { stroke-width: .8; opacity: .8; } .cn .an .tel.cst { stroke-width: 1.6; }
+                .cn .bar.fb { stroke-width: .75; stroke: rgba(255,255,255,.7); }
+                .cn .lan { fill: rgba(255,255,255,.85); }
+                .cn .ric { fill: none; stroke: currentColor; stroke-width: .9; stroke-linecap: round; }
+                .cn .cap { fill: #3a3754; stroke: rgba(255,255,255,.55); stroke-width: 1; stroke-linejoin: round; }
+                .cg.na .lan, .cg.na .ric { opacity: .4; }
+                .cn .asx { transform-origin: 0 50%; } .cn .adx { transform-origin: 100% 50%; }
+                .cn.att .asx { animation: cn_asx 73s ease-in-out forwards; animation-delay: var(--d); }
+                .cn.att .adx { animation: cn_adx 73s ease-in-out forwards; animation-delay: var(--d); }
+                @keyframes cn_asx { 0% { transform: none; } 32.9%, 68.5% { transform: scaleX(.3) skewY(-11deg); } 98.6%, 100% { transform: none; } }
+                @keyframes cn_adx { 0% { transform: none; } 32.9%, 68.5% { transform: scaleX(.3) skewY(11deg); } 98.6%, 100% { transform: none; } }
+                .cn .t1 { --fs: cn_t1; } .cn .t2 { --fs: cn_t2; } .cn .t3 { --fs: cn_t3; } .cn .fine { --fs: cn_t4; }
+                .cn .frc { transform-box: fill-box; transform-origin: 50% 50%; fill: none; stroke: #FFBF00; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+                .cn.att .fa { animation: cn_fa 73s linear forwards; animation-delay: var(--d); }
+                .cn.att .fc { animation: cn_fc 73s linear forwards; animation-delay: var(--d); }
+                @keyframes cg_spegni { 0%, 98.6% { opacity: 1; } 99.1%, 100% { opacity: 0; } }
+                @keyframes cn_fa { 0% { opacity: 0; transform: scale(.7); } 2%, 29.9% { opacity: 1; transform: none; } 32.9%, 100% { opacity: 0; transform: scale(1.15); } }
+                @keyframes cn_fc { 0%, 68.5% { opacity: 0; transform: scale(1.15); } 70.5%, 95.6% { opacity: 1; transform: none; } 98.6%, 100% { opacity: 0; transform: scale(.7); } }
+                @keyframes cn_t1 { 0% { opacity: 1; } 32.9% { opacity: 1; } 33.0% { opacity: 0; } 100% { opacity: 0; } }
+                @keyframes cn_t2 { 0% { opacity: 0; } 32.8% { opacity: 0; } 32.9% { opacity: 1; } 68.5% { opacity: 1; } 68.6% { opacity: 0; } 100% { opacity: 0; } }
+                @keyframes cn_t3 { 0% { opacity: 0; } 68.4% { opacity: 0; } 68.5% { opacity: 1; } 98.6% { opacity: 1; } 98.7% { opacity: 0; } 100% { opacity: 0; } }
+                @keyframes cn_t4 { 0% { opacity: 0; } 98.5% { opacity: 0; } 98.6% { opacity: 1; } 100% { opacity: 1; } }
 
-                        .pt { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 4px 9px; border-radius: 20px; overflow: hidden; color: #fff;
-                              background: radial-gradient(90% 70% at 50% 0%, #00B0FF38, transparent 70%), linear-gradient(160deg, #141c38, #0b1020);
-                              box-shadow: inset 0 0 0 1px #00B0FF88, 0 0 16px #00B0FF33; transition: transform .15s; }
-                        .pt::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.10) 50%, transparent 65%); transform: translateX(-100%); animation: vc_luce 5s ease-in-out infinite; pointer-events: none; }
-                        @keyframes vc_luce { 60%,100% { transform: translateX(100%); } }
-                        ha-card:active .pt { transform: scale(.92); box-shadow: inset 0 0 0 2px #00B0FF, 0 0 26px #00B0FF88; }
-                        .pt .cg { flex-direction: column; height: auto; padding: 0; gap: 3px; background: none !important; box-shadow: none !important; }
-                        .pt .cg svg { width: 86px; height: 54px; }
-                        .pt .cg .tt { align-items: center; text-align: center; }
-                        .pt .cg .nm { font-size: 12.5px; font-weight: 800; }
-                        .pt .cg .tx { justify-items: center; font-size: 9.5px; }
-                        .pt small { font-size: 9.5px; color: #8a96aa; letter-spacing: .4px; }
-                    - type: custom:button-card
-                      name: Ultima foto
-                      show_name: false
-                      show_icon: false
-                      tap_action:
-                        action: none
-                      double_tap_action:
-                        action: more-info
-                        entity: camera.videocitofono_foto
-                      hold_action:
-                        action: none
-                      styles:
-                        card:
-                          - padding: "0"
-                          - background: transparent
-                          - border: none
-                          - box-shadow: none
-                        grid:
-                          - grid-template-areas: "\"p\""
-                          - grid-template-columns: 1fr
-                        custom_fields:
-                          p:
-                            - width: 100%
-                      custom_fields:
-                        p: <div class="pt"><div class="cer"><ha-icon icon="mdi:image-search"></ha-icon></div><b>Ultima foto</b><small>doppio tocco</small></div>
-                      extra_styles: |-
+                .pt { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 4px 9px; border-radius: 20px; overflow: hidden; color: #fff;
+                      background: radial-gradient(90% 70% at 50% 0%, #00B0FF38, transparent 70%), linear-gradient(160deg, #141c38, #0b1020);
+                      box-shadow: inset 0 0 0 1px #00B0FF88, 0 0 16px #00B0FF33; transition: transform .15s; }
+                .pt::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.10) 50%, transparent 65%); transform: translateX(-100%); animation: vc_luce 5s ease-in-out infinite; pointer-events: none; }
+                @keyframes vc_luce { 60%,100% { transform: translateX(100%); } }
+                ha-card:active .pt { transform: scale(.92); box-shadow: inset 0 0 0 2px #00B0FF, 0 0 26px #00B0FF88; }
+                .pt .cg { flex-direction: column; height: auto; padding: 0; gap: 3px; background: none !important; box-shadow: none !important; }
+                .pt .cg svg { width: 86px; height: 54px; }
+                .pt .cg .tt { align-items: center; text-align: center; }
+                .pt .cg .nm { font-size: 12.5px; font-weight: 800; }
+                .pt .cg .tx { justify-items: center; font-size: 9.5px; }
+                .pt small { font-size: 9.5px; color: #8a96aa; letter-spacing: .4px; }
+            - type: custom:button-card
+              name: Ultima foto
+              show_name: false
+              show_icon: false
+              tap_action:
+                action: none
+              double_tap_action:
+                action: more-info
+                entity: camera.videocitofono_foto
+              hold_action:
+                action: none
+              styles:
+                card:
+                - padding: '0'
+                - background: transparent
+                - border: none
+                - box-shadow: none
+                grid:
+                - grid-template-areas: '"p"'
+                - grid-template-columns: 1fr
+                custom_fields:
+                  p:
+                  - width: 100%
+              custom_fields:
+                p: <div class="pt"><div class="cer"><ha-icon icon="mdi:image-search"></ha-icon></div><b>Ultima foto</b><small>doppio tocco</small></div>
+              extra_styles: |2-
 
-                        .pt { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 6px 11px; border-radius: 20px; overflow: hidden; color: #fff;
-                              background: radial-gradient(90% 70% at 50% 0%, #FFB30038, transparent 70%), linear-gradient(160deg, #141c38, #0b1020);
-                              box-shadow: inset 0 0 0 1px #FFB30088, 0 0 16px #FFB30033; transition: transform .15s; }
-                        .pt::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.10) 50%, transparent 65%); transform: translateX(-100%); animation: vc_luce 5s ease-in-out infinite; pointer-events: none; }
-                        @keyframes vc_luce { 60%,100% { transform: translateX(100%); } }
-                        ha-card:active .pt { transform: scale(.92); box-shadow: inset 0 0 0 2px #FFB300, 0 0 26px #FFB30088; }
-                        .cer { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle, #FFB30055, transparent 72%); box-shadow: 0 0 0 1.5px #FFB300AA, 0 0 14px #FFB30077; }
-                        .cer ha-icon { --mdc-icon-size: 26px; color: #FFB300; filter: drop-shadow(0 0 6px #FFB300); animation: vc_flash 4s ease-in-out infinite; }
-                        .pt b { font-size: 12.5px; font-weight: 800; white-space: nowrap; }
-                        .pt small { font-size: 9.5px; color: #8a96aa; letter-spacing: .4px; margin-top: -3px; }
-                        @keyframes vc_porta { 0%,70%,100% { transform: perspective(60px) rotateY(0); } 80% { transform: perspective(60px) rotateY(-40deg); } }
-                        @keyframes vc_sbarra { 0%,70%,100% { transform: rotate(0); } 82% { transform: rotate(-22deg); } }
-                        @keyframes vc_flash { 0%,82%,100% { filter: drop-shadow(0 0 6px #FFB300); opacity: 1; } 86% { filter: drop-shadow(0 0 18px #fff) brightness(2); } 90% { opacity: .7; } }
-                - type: custom:button-card
-                  entity: binary_sensor.videocitofono_squillo
-                  name: Rispondi
-                  show_name: false
-                  show_state: false
-                  show_icon: false
-                  tap_action:
-                    action: none
-                  hold_action:
-                    action: none
-                  double_tap_action:
-                    action: url
-                    url_path: shortcuts://run-shortcut?name=Apri%20Door%20Entry
-                  styles:
-                    card:
-                      - padding: "0"
-                      - background: transparent
-                      - border: none
-                      - box-shadow: none
-                    grid:
-                      - grid-template-areas: "\"r\""
-                      - grid-template-columns: 1fr
-                    custom_fields:
-                      r:
-                        - width: 100%
-                  custom_fields:
-                    r: |-
-                      [[[
-                      const ring = entity && entity.state === 'on';
-                      return '<div class="rs' + (ring ? ' ring' : '') + '"><div class="cer"><i class="w"></i><i class="w"></i><ha-icon icon="mdi:phone"></ha-icon></div>' +
-                        '<div class="tx"><b>' + (ring ? 'Rispondi adesso' : 'Rispondi') + '</b><span>apre l\'app Door Entry · doppio tocco</span></div>' +
-                        '<ha-icon class="fr" icon="mdi:chevron-double-right"></ha-icon></div>';
-                      ]]]
-                  extra_styles: |-
+                .pt { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 6px 11px; border-radius: 20px; overflow: hidden; color: #fff;
+                      background: radial-gradient(90% 70% at 50% 0%, #FFB30038, transparent 70%), linear-gradient(160deg, #141c38, #0b1020);
+                      box-shadow: inset 0 0 0 1px #FFB30088, 0 0 16px #FFB30033; transition: transform .15s; }
+                .pt::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.10) 50%, transparent 65%); transform: translateX(-100%); animation: vc_luce 5s ease-in-out infinite; pointer-events: none; }
+                @keyframes vc_luce { 60%,100% { transform: translateX(100%); } }
+                ha-card:active .pt { transform: scale(.92); box-shadow: inset 0 0 0 2px #FFB300, 0 0 26px #FFB30088; }
+                .cer { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle, #FFB30055, transparent 72%); box-shadow: 0 0 0 1.5px #FFB300AA, 0 0 14px #FFB30077; }
+                .cer ha-icon { --mdc-icon-size: 26px; color: #FFB300; filter: drop-shadow(0 0 6px #FFB300); animation: vc_flash 4s ease-in-out infinite; }
+                .pt b { font-size: 12.5px; font-weight: 800; white-space: nowrap; }
+                .pt small { font-size: 9.5px; color: #8a96aa; letter-spacing: .4px; margin-top: -3px; }
+                @keyframes vc_porta { 0%,70%,100% { transform: perspective(60px) rotateY(0); } 80% { transform: perspective(60px) rotateY(-40deg); } }
+                @keyframes vc_sbarra { 0%,70%,100% { transform: rotate(0); } 82% { transform: rotate(-22deg); } }
+                @keyframes vc_flash { 0%,82%,100% { filter: drop-shadow(0 0 6px #FFB300); opacity: 1; } 86% { filter: drop-shadow(0 0 18px #fff) brightness(2); } 90% { opacity: .7; } }
+          - type: custom:button-card
+            entity: binary_sensor.videocitofono_squillo
+            name: Rispondi
+            show_name: false
+            show_state: false
+            show_icon: false
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            double_tap_action:
+              action: url
+              url_path: shortcuts://run-shortcut?name=Apri%20Door%20Entry
+            styles:
+              card:
+              - padding: '0'
+              - background: transparent
+              - border: none
+              - box-shadow: none
+              grid:
+              - grid-template-areas: '"r"'
+              - grid-template-columns: 1fr
+              custom_fields:
+                r:
+                - width: 100%
+            custom_fields:
+              r: |-
+                [[[
+                const ring = entity && entity.state === 'on';
+                return '<div class="rs' + (ring ? ' ring' : '') + '"><div class="cer"><i class="w"></i><i class="w"></i><ha-icon icon="mdi:phone"></ha-icon></div>' +
+                  '<div class="tx"><b>' + (ring ? 'Rispondi adesso' : 'Rispondi') + '</b><span>apre l\'app Door Entry · doppio tocco</span></div>' +
+                  '<ha-icon class="fr" icon="mdi:chevron-double-right"></ha-icon></div>';
+                ]]]
+            extra_styles: |2-
 
-                    .rs { position: relative; display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 20px; overflow: hidden; color: #fff;
-                          background: radial-gradient(70% 140% at 0% 50%, #00E67633, transparent 70%), linear-gradient(160deg, #10251c, #0b1020);
-                          box-shadow: inset 0 0 0 1px #00E67688, 0 0 14px #00E67633; transition: transform .15s; }
-                    .rs.ring { animation: rs_pulse 1.1s ease-in-out infinite; }
-                    @keyframes rs_pulse { 50% { box-shadow: inset 0 0 0 2px #00E676, 0 0 26px #00E676AA; } }
-                    .rs::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.10) 50%, transparent 65%); transform: translateX(-100%); animation: rs_luce 4.5s ease-in-out infinite; pointer-events: none; }
-                    @keyframes rs_luce { 60%,100% { transform: translateX(100%); } }
-                    ha-card:active .rs { transform: scale(.96); }
-                    .cer { position: relative; flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle, #00E67666, transparent 72%); box-shadow: 0 0 0 1.5px #00E676, 0 0 14px #00E67699; }
-                    .cer ha-icon { --mdc-icon-size: 22px; color: #fff; filter: drop-shadow(0 0 6px #00E676); }
-                    .ring .cer ha-icon { animation: rs_sh .45s ease-in-out infinite; }
-                    @keyframes rs_sh { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-16deg); } 75% { transform: rotate(16deg); } }
-                    .w { position: absolute; inset: 0; border-radius: 50%; border: 2px solid #00E676; opacity: 0; }
-                    .ring .w { animation: rs_onda 1.6s ease-out infinite; } .ring .w:nth-child(2) { animation-delay: .8s; }
-                    @keyframes rs_onda { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(1.5); opacity: 0; } }
-                    .tx { flex: 1; min-width: 0; text-align: left; } .tx b { display: block; font-size: 16px; font-weight: 800; text-shadow: 0 0 10px #00E67688; }
-                    .tx span { display: block; font-size: 11px; color: #9fb0c4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-                    .fr { --mdc-icon-size: 26px; color: #69F0AE; animation: rs_fr 1.4s ease-in-out infinite; }
-                    @keyframes rs_fr { 50% { transform: translateX(4px); opacity: .6; } }
-                - type: custom:button-card
-                  entity: sensor.videocitofono_storico
-                  show_name: false
-                  show_state: false
-                  show_icon: false
-                  tap_action:
-                    action: none
-                  hold_action:
-                    action: none
-                  styles:
-                    card:
-                      - padding: "0"
-                      - background: transparent
-                      - border: none
-                      - box-shadow: none
-                      - overflow: visible
-                    grid:
-                      - grid-template-areas: "\"s\""
-                      - grid-template-columns: 1fr
-                    custom_fields:
-                      s:
-                        - width: 100%
-                        - min-width: "0"
-                  custom_fields:
-                    s: |-
-                      [[[
-                      const v = (entity && entity.attributes && entity.attributes.voci) || [];
-                      const E = { risposta: ['#00E676', 'mdi:phone-check', 'Risposto'], persa: ['#FF1744', 'mdi:phone-missed', 'Persa'], squillo: ['#FFB300', 'mdi:bell-ring', 'Squillo'] };
-                      const oggi = new Date().toDateString();
-                      const voci = v.map(x => {
-                        const d = new Date(x.t), e = E[x.esito] || E.squillo;
-                        const qd = d.toDateString() === oggi ? 'oggi' : d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
-                        const img = x.foto ? '<img src="' + x.foto + '" loading="lazy">' : '<div class="noimg"><ha-icon icon="mdi:image-off-outline"></ha-icon></div>';
-                        return '<div class="it" style="--c:' + e[0] + '">' + img + '<span class="es"><ha-icon icon="' + e[1] + '"></ha-icon>' + e[2] + '</span>' +
-                          '<div class="tm"><b>' + d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) + '</b>' + qd + '</div></div>';
-                      }).join('');
-                      return '<div class="st"><div class="hd"><ha-icon icon="mdi:history"></ha-icon>Ultimi squilli<span>' + v.length + '</span></div>' +
-                        (v.length ? '<div class="sc">' + voci + '</div>' : '<div class="vuoto">Nessuno squillo registrato</div>') + '</div>';
-                      ]]]
-                  extra_styles: |-
+              .rs { position: relative; display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 20px; overflow: hidden; color: #fff;
+                    background: radial-gradient(70% 140% at 0% 50%, #00E67633, transparent 70%), linear-gradient(160deg, #10251c, #0b1020);
+                    box-shadow: inset 0 0 0 1px #00E67688, 0 0 14px #00E67633; transition: transform .15s; }
+              .rs.ring { animation: rs_pulse 1.1s ease-in-out infinite; }
+              @keyframes rs_pulse { 50% { box-shadow: inset 0 0 0 2px #00E676, 0 0 26px #00E676AA; } }
+              .rs::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.10) 50%, transparent 65%); transform: translateX(-100%); animation: rs_luce 4.5s ease-in-out infinite; pointer-events: none; }
+              @keyframes rs_luce { 60%,100% { transform: translateX(100%); } }
+              ha-card:active .rs { transform: scale(.96); }
+              .cer { position: relative; flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle, #00E67666, transparent 72%); box-shadow: 0 0 0 1.5px #00E676, 0 0 14px #00E67699; }
+              .cer ha-icon { --mdc-icon-size: 22px; color: #fff; filter: drop-shadow(0 0 6px #00E676); }
+              .ring .cer ha-icon { animation: rs_sh .45s ease-in-out infinite; }
+              @keyframes rs_sh { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-16deg); } 75% { transform: rotate(16deg); } }
+              .w { position: absolute; inset: 0; border-radius: 50%; border: 2px solid #00E676; opacity: 0; }
+              .ring .w { animation: rs_onda 1.6s ease-out infinite; } .ring .w:nth-child(2) { animation-delay: .8s; }
+              @keyframes rs_onda { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(1.5); opacity: 0; } }
+              .tx { flex: 1; min-width: 0; text-align: left; } .tx b { display: block; font-size: 16px; font-weight: 800; text-shadow: 0 0 10px #00E67688; }
+              .tx span { display: block; font-size: 11px; color: #9fb0c4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+              .fr { --mdc-icon-size: 26px; color: #69F0AE; animation: rs_fr 1.4s ease-in-out infinite; }
+              @keyframes rs_fr { 50% { transform: translateX(4px); opacity: .6; } }
+          - type: custom:button-card
+            entity: sensor.videocitofono_storico
+            show_name: false
+            show_state: false
+            show_icon: false
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            styles:
+              card:
+              - padding: '0'
+              - background: transparent
+              - border: none
+              - box-shadow: none
+              - overflow: visible
+              grid:
+              - grid-template-areas: '"s"'
+              - grid-template-columns: 1fr
+              custom_fields:
+                s:
+                - width: 100%
+                - min-width: '0'
+                - pointer-events: auto
+            custom_fields:
+              s: |-
+                [[[
+                const v = (entity && entity.attributes && entity.attributes.voci) || [];
+                const nv = (entity && entity.attributes && entity.attributes.nuove) || 0;
+                const HS = () => document.querySelector('home-assistant')?.hass;
+                window.__vcPub = (cmd, p) => { const h = HS(); if (h) h.callService('mqtt', 'publish', { topic: 'bticino_easykit/cmd/storico/' + cmd, payload: p || 'PRESS' }); };
+                window.__vcZoom = (el, src, tit, fine) => {
+                  const o = document.createElement('div');
+                  o.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:12px;cursor:zoom-out';
+                  o.innerHTML = '<img src="' + src + '" style="max-width:100%;max-height:82vh;border-radius:14px;box-shadow:0 0 30px #000">' +
+                    '<div style="color:#fff;font:700 15px system-ui">' + tit + '</div><div style="color:#90a4ae;font:12px system-ui">tocca per chiudere</div>';
+                  o.onpointerup = e => { e.stopPropagation(); e.preventDefault(); setTimeout(() => { o.remove(); if (fine) fine(); }, 60); };
+                  (el.getRootNode() || document.body).appendChild(o);
+                };
+                window.__vcDown = e => { window.__vcP = [e.clientX, e.clientY]; };
+                window.__vcFermo = e => { const p = window.__vcP || [e.clientX, e.clientY]; window.__vcP = null; return Math.abs(e.clientX - p[0]) < 12 && Math.abs(e.clientY - p[1]) < 12; };
+                window.__vcAct = (e) => {
+                  e.stopPropagation(); e.preventDefault();
+                  const k = e.currentTarget, d = k.dataset, box = k.closest('.st');
+                  if (!window.__vcFermo(e)) return;          // era uno scorrimento, non un tocco
+                  if (d.act === 'zoom') {                     // foto grande; quando si chiude la chiamata conta come vista (via 'NUOVA')
+                    const r = k.closest('.it');
+                    window.__vcZoom(k, d.src, d.tit, () => { if (r) { r.classList.remove('nv'); r.querySelector('.es em')?.remove(); }
+                      if (window.__vcEvid) window.__vcEvid.ids = window.__vcEvid.ids.filter(i => i !== (r && r.dataset.id)); });
+                    return;
+                  }
+                  k.classList.add('uno'); setTimeout(() => k.classList.remove('uno'), 250);   // cestino e scopa: tocco singolo + conferma
+                  const c = box.querySelector('.cf');
+                  c.innerHTML = '<ha-icon icon="' + (d.act === 'svuota' ? 'mdi:broom' : 'mdi:trash-can-outline') + '"></ha-icon><span>' + d.txt + '</span>' +
+                    '<div class="bb"><button class="no">Annulla</button><button class="si">Elimina</button></div>';
+                  c.classList.add('on');
+                  c.querySelector('.no').onpointerup = x => { x.stopPropagation(); c.classList.remove('on'); };
+                  c.querySelector('.si').onpointerup = x => {
+                    x.stopPropagation(); c.classList.remove('on');
+                    if (d.act === 'svuota') { box.querySelectorAll('.it').forEach(r => r.classList.add('via')); window.__vcPub('svuota'); }
+                    else { const r = box.querySelector('.it[data-id="' + d.id + '"]'); if (r) r.classList.add('via'); window.__vcPub('elimina', d.id); }
+                  };
+                };
+                // aprendo il popup: il pallino sulla mini card sparisce; la scritta NUOVA resta finche' non si guarda la foto grande
+                if (nv > 0 && !window.__vcVistoT) {
+                  window.__vcVistoT = 1; const me = this;
+                  setTimeout(() => {
+                    window.__vcVistoT = 0;
+                    if (me && me.isConnected && me.getClientRects().length) {
+                      const vecchi = (window.__vcEvid && window.__vcEvid.fino > Date.now()) ? window.__vcEvid.ids : [];
+                      window.__vcEvid = { ids: [...new Set([...vecchi, ...v.filter(x => x.nuova).map(x => x.id)])], fino: Date.now() + 86400000 };
+                      window.__vcPub('visto');
+                    }
+                  }, 1200);
+                }
+                const ev = (window.__vcEvid && window.__vcEvid.fino > Date.now()) ? window.__vcEvid.ids.filter(i => v.some(x => x.id === i)) : [];
+                const E = { risposta: ['#00E676', 'mdi:phone-check', 'Risposto'], persa: ['#FF1744', 'mdi:phone-missed', 'Persa'], squillo: ['#FFB300', 'mdi:bell-ring', 'Squillo'] };
+                const GG = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'];
+                const oggi = new Date(), ieri = new Date(Date.now() - 86400000);
+                const att = s => String(s).replace(/"/g, '&quot;');
+                const L = v.slice(0, 5);
+                const righe = L.map((x, i) => {
+                  const d = new Date(x.t), e = E[x.esito] || E.squillo;
+                  const ora = d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+                  const gg = d.toDateString() === oggi.toDateString() ? 'oggi' : d.toDateString() === ieri.toDateString() ? 'ieri'
+                           : GG[d.getDay()] + ' ' + d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+                  const nuova = x.nuova || ev.includes(x.id);
+                  const img = x.foto
+                    ? '<img src="' + x.foto + '" loading="lazy" data-act="zoom" data-src="' + att(x.foto) + '" data-tit="' + att(e[2] + ' · ' + gg + ' ' + ora) + '" onpointerdown="window.__vcDown(event)" onpointerup="window.__vcAct(event)">'
+                    : '<div class="noimg"><ha-icon icon="mdi:image-off-outline"></ha-icon></div>';
+                  return '<div class="it' + (nuova ? ' nv' : '') + '" data-id="' + att(x.id) + '" style="--c:' + e[0] + ';--i:' + i + '">' + img +
+                    '<div class="tx"><span class="es"><ha-icon icon="' + e[1] + '"></ha-icon>' + e[2] + (nuova ? '<em>NUOVA</em>' : '') + '</span>' +
+                    '<b>' + ora + '</b><small>' + gg + '</small></div>' +
+                    '<button class="bt del" data-act="elimina" data-id="' + att(x.id) + '" data-txt="' + att('Eliminare la chiamata di ' + gg + ' alle ' + ora + '?') + '" onpointerdown="window.__vcDown(event)" onpointerup="window.__vcAct(event)"><ha-icon icon="mdi:trash-can-outline"></ha-icon></button></div>';
+                }).join('');
+                return '<div class="st"><div class="hd"><ha-icon icon="mdi:history"></ha-icon><div class="ti"><b>Ultime chiamate</b><small>tocca la foto per ingrandirla · 🗑️ per eliminare</small></div>' +
+                  '<span class="nr">' + v.length + '</span>' +
+                  (v.length ? '<button class="bt sco" data-act="svuota" data-txt="' + att('Eliminare tutte le ' + v.length + ' chiamate con le foto?') + '" onpointerdown="window.__vcDown(event)" onpointerup="window.__vcAct(event)"><ha-icon icon="mdi:broom"></ha-icon></button>' : '') + '</div>' +
+                  '<div class="cf"></div>' +
+                  (L.length ? '<div class="ls">' + righe + '</div>' : '<div class="vuoto"><ha-icon icon="mdi:bell-sleep-outline"></ha-icon>Nessuna chiamata registrata</div>') +
+                  (v.length > 5 ? '<div class="piu">+ ' + (v.length - 5) + ' più vecchie (la scopa elimina anche queste)</div>' : '') + '</div>';
+                ]]]
+            extra_styles: |2
 
-                    .st { border-radius: 20px; padding: 10px 0 10px 10px; background: linear-gradient(160deg, #141c38, #0b1020); box-shadow: inset 0 0 0 1px #7C4DFF66, 0 0 14px #7C4DFF22; }
-                    .hd { display: flex; align-items: center; gap: 6px; padding-right: 10px; font-size: 13px; font-weight: 800; color: #fff; margin-bottom: 8px; }
-                    .hd ha-icon { --mdc-icon-size: 18px; color: #B388FF; filter: drop-shadow(0 0 5px #7C4DFF); }
-                    .hd span { margin-left: auto; font-size: 11px; color: #B388FF; padding: 1px 8px; border-radius: 10px; box-shadow: inset 0 0 0 1px #7C4DFF88; }
-                    .sc { display: flex; gap: 8px; overflow-x: auto; padding: 2px 10px 4px 2px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-                    .sc::-webkit-scrollbar { display: none; }
-                    .it { position: relative; flex: none; width: 112px; scroll-snap-align: start; border-radius: 14px; overflow: hidden; background: #0b1020;
-                          box-shadow: 0 0 0 1.5px var(--c), 0 0 10px color-mix(in srgb, var(--c) 45%, transparent); }
-                    .it img, .it .noimg { display: block; width: 112px; height: 80px; object-fit: cover; }
-                    .it .noimg { display: grid; place-items: center; color: #607d8b; } .it .noimg ha-icon { --mdc-icon-size: 26px; }
-                    .es { position: absolute; top: 5px; left: 5px; display: flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: 9px; font-size: 9.5px; font-weight: 800; color: #fff;
-                          background: rgba(10,14,28,.65); box-shadow: inset 0 0 0 1px var(--c); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
-                    .es ha-icon { --mdc-icon-size: 12px; color: var(--c); }
-                    .tm { display: flex; align-items: baseline; justify-content: space-between; padding: 4px 7px 5px; font-size: 10px; color: #9fb0c4; }
-                    .tm b { font-size: 13px; color: #fff; }
-                    .vuoto { padding: 8px 10px 4px 0; font-size: 12px; color: #8a96aa; text-align: center; }
-                - type: custom:button-card
-                  show_name: false
-                  show_state: false
-                  show_icon: false
-                  update_timer: 5
-                  tap_action:
-                    action: none
-                  styles:
-                    card:
-                      - padding: "0"
-                      - background: transparent
-                      - border: none
-                      - box-shadow: none
-                    grid:
-                      - grid-template-areas: "\"s\""
-                      - grid-template-columns: 1fr
-                    custom_fields:
-                      s:
-                        - width: 100%
-                  custom_fields:
-                    s: |-
-                      [[[
-                      const st = (e) => (states[e] || {}).state;
-                      const ora = (e) => { const s = st(e); if (!s || ['unknown','unavailable'].includes(s)) return '—'; const d = new Date(s); return d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}); };
-                      const ok = st('binary_sensor.videocitofono_connesso') === 'on';
-                      const ant = st('switch.videocitofono_anteprima') === 'on';
-                      const chip = (c, ic, t) => '<span class="ch" style="--c:' + c + '"><ha-icon icon="' + ic + '"></ha-icon>' + t + '</span>';
-                      return '<div class="bar">' +
-                        chip(ok ? '#00E676' : '#FF1744', ok ? 'mdi:cloud-check' : 'mdi:cloud-off-outline', ok ? 'Collegato' : 'Scollegato') +
-                        chip(ant ? '#00E5FF' : '#78909C', 'mdi:eye-arrow-right', ant ? 'Anteprima' : 'No anteprima') +
-                        chip('#FF9100', 'mdi:bell-badge', ora('sensor.videocitofono_ultimo_squillo')) +
-                        chip('#FFB300', 'mdi:camera-timer', ora('sensor.videocitofono_ultima_foto')) + '</div>';
-                      ]]]
-                  extra_styles: |-
+              .st, .st * { pointer-events: auto; touch-action: manipulation; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
+              .st { position: relative; border-radius: 20px; padding: 12px; background: linear-gradient(160deg, #141c38, #0b1020); box-shadow: inset 0 0 0 1px #7C4DFF66, 0 0 14px #7C4DFF22; }
+              .hd { display: flex; align-items: center; gap: 8px; color: #fff; margin-bottom: 10px; }
+              .hd > ha-icon { --mdc-icon-size: 22px; color: #B388FF; filter: drop-shadow(0 0 5px #7C4DFF); flex: none; }
+              .ti { flex: 1; min-width: 0; } .ti b { display: block; font-size: 14px; font-weight: 800; }
+              .ti small { display: block; font-size: 10px; color: #8a96aa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+              .nr { flex: none; font-size: 11px; font-weight: 800; color: #B388FF; padding: 1px 8px; border-radius: 10px; box-shadow: inset 0 0 0 1px #7C4DFF88; }
+              .bt { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; border: none; cursor: pointer; padding: 0;
+                    background: rgba(255,255,255,.05); touch-action: manipulation; -webkit-tap-highlight-color: transparent; transition: transform .15s, box-shadow .2s; }
+              .bt ha-icon { --mdc-icon-size: 20px; pointer-events: none; }
+              .bt.sco { box-shadow: inset 0 0 0 1px #FFD60099, 0 0 8px #FFD60033; } .bt.sco ha-icon { color: #FFD600; animation: vs_scopa 3s ease-in-out infinite; transform-origin: 70% 20%; }
+              @keyframes vs_scopa { 0%, 70%, 100% { transform: rotate(0); } 78% { transform: rotate(-18deg); } 86% { transform: rotate(14deg); } 94% { transform: rotate(-8deg); } }
+              .bt.del { box-shadow: inset 0 0 0 1px #FF525299; } .bt.del ha-icon { color: #FF5252; }
+              .bt.uno { transform: scale(.88); box-shadow: inset 0 0 0 2px #fff, 0 0 12px #fff8; }
+              .cf { display: none; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 0 0 10px; padding: 10px; border-radius: 14px; background: #FF174422; box-shadow: inset 0 0 0 1px #FF1744aa; animation: vs_in .25s ease-out; }
+              .cf.on { display: flex; } .cf ha-icon { --mdc-icon-size: 20px; color: #FF5252; flex: none; } .cf span { flex: 1 1 0; min-width: 0; font-size: 13px; color: #fff; line-height: 1.3; }
+              .cf .bb { flex: 1 0 100%; display: flex; justify-content: flex-end; gap: 8px; }
+              .cf button { flex: none; border: none; border-radius: 10px; padding: 9px 16px; font: 800 12px system-ui; cursor: pointer; touch-action: manipulation; }
+              .cf .no { background: #ffffff1a; color: #cfd8dc; } .cf .si { background: #FF1744; color: #fff; box-shadow: 0 0 10px #FF174488; }
+              @keyframes vs_in { from { opacity: 0; transform: translateY(-6px); } }
+              .ls { display: flex; flex-direction: column; gap: 8px; }
+              .it { display: flex; align-items: center; gap: 10px; padding: 6px 8px 6px 6px; border-radius: 16px; background: #ffffff08;
+                    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 55%, transparent); animation: vs_in .35s ease-out both; animation-delay: calc(var(--i) * 60ms);
+                    transition: opacity .35s, transform .35s, max-height .35s; max-height: 120px; }
+              .it.via { opacity: 0; transform: translateX(40px); max-height: 0; padding-top: 0; padding-bottom: 0; }
+              .it.nv { box-shadow: inset 0 0 0 1.5px #FFD600, 0 0 14px #FFD60055; animation: vs_in .35s ease-out both, vs_nv 1.6s ease-in-out infinite; }
+              @keyframes vs_nv { 50% { box-shadow: inset 0 0 0 1.5px #FFD600, 0 0 22px #FFD600aa; } }
+              .it img, .it .noimg { flex: none; width: 88px; height: 58px; border-radius: 11px; object-fit: cover; display: block; cursor: zoom-in;
+                    box-shadow: 0 0 0 1.5px var(--c), 0 0 10px color-mix(in srgb, var(--c) 40%, transparent); touch-action: manipulation; }
+              .it .noimg { display: grid; place-items: center; color: #607d8b; background: #0b1020; cursor: default; } .it .noimg ha-icon { --mdc-icon-size: 24px; }
+              .tx { flex: 1; min-width: 0; line-height: 1.2; }
+              .es { display: flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 800; color: var(--c); }
+              .es ha-icon { --mdc-icon-size: 14px; } .es em { font-style: normal; margin-left: 4px; padding: 0 6px; border-radius: 8px; background: #FFD600; color: #111; font-size: 9px; }
+              .tx b { display: block; font-size: 17px; color: #fff; } .tx small { display: block; font-size: 11px; color: #9fb0c4; }
+              .vuoto { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 0 4px; font-size: 12px; color: #8a96aa; }
+              .vuoto ha-icon { --mdc-icon-size: 18px; }
+              .piu { margin-top: 8px; text-align: center; font-size: 10.5px; color: #8a96aa; }
+            double_tap_action:
+              action: none
+          - type: custom:button-card
+            show_name: false
+            show_state: false
+            show_icon: false
+            update_timer: 5
+            tap_action:
+              action: none
+            styles:
+              card:
+              - padding: '0'
+              - background: transparent
+              - border: none
+              - box-shadow: none
+              grid:
+              - grid-template-areas: '"s"'
+              - grid-template-columns: 1fr
+              custom_fields:
+                s:
+                - width: 100%
+            custom_fields:
+              s: |-
+                [[[
+                const st = (e) => (states[e] || {}).state;
+                const ora = (e) => { const s = st(e); if (!s || ['unknown','unavailable'].includes(s)) return '—'; const d = new Date(s); return d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}); };
+                const ok = st('binary_sensor.videocitofono_connesso') === 'on';
+                const ant = st('switch.videocitofono_anteprima') === 'on';
+                const chip = (c, ic, t) => '<span class="ch" style="--c:' + c + '"><ha-icon icon="' + ic + '"></ha-icon>' + t + '</span>';
+                return '<div class="bar">' +
+                  chip(ok ? '#00E676' : '#FF1744', ok ? 'mdi:cloud-check' : 'mdi:cloud-off-outline', ok ? 'Collegato' : 'Scollegato') +
+                  chip(ant ? '#00E5FF' : '#78909C', 'mdi:eye-arrow-right', ant ? 'Anteprima' : 'No anteprima') +
+                  chip('#FF9100', 'mdi:bell-badge', ora('sensor.videocitofono_ultimo_squillo')) +
+                  chip('#FFB300', 'mdi:camera-timer', ora('sensor.videocitofono_ultima_foto')) + '</div>';
+                ]]]
+            extra_styles: |2-
 
-                    .bar { display: flex; flex-wrap: nowrap; justify-content: center; gap: 5px; padding: 2px 0 4px; }
-                    .ch { display: inline-flex; align-items: center; gap: 3px; padding: 4px 7px; border-radius: 12px; font-size: 10.5px; font-weight: 700; color: #e3e9f3; white-space: nowrap;
-                          background: linear-gradient(160deg, #141c38, #0b1020); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 60%, transparent), 0 0 10px color-mix(in srgb, var(--c) 25%, transparent); }
-                    .ch ha-icon { --mdc-icon-size: 13px; color: var(--c); filter: drop-shadow(0 0 4px var(--c)); }
-        style: "--popup-background-color: #0b1020; --ha-dialog-surface-background: #0b1020; --mdc-theme-surface: #0b1020; --ha-card-background: transparent; --card-background-color: #0b1020; --primary-background-color: #0b1020; --mdc-dialog-scrim-color: rgba(0,0,0,.7); --ha-dialog-scrim-backdrop-filter: blur(8px) brightness(.5); --popup-border-radius: 28px;"
+              .bar { display: flex; flex-wrap: nowrap; justify-content: center; gap: 5px; padding: 2px 0 4px; }
+              .ch { display: inline-flex; align-items: center; gap: 3px; padding: 4px 7px; border-radius: 12px; font-size: 10.5px; font-weight: 700; color: #e3e9f3; white-space: nowrap;
+                    background: linear-gradient(160deg, #141c38, #0b1020); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 60%, transparent), 0 0 10px color-mix(in srgb, var(--c) 25%, transparent); }
+              .ch ha-icon { --mdc-icon-size: 13px; color: var(--c); filter: drop-shadow(0 0 4px var(--c)); }
+      style: '--popup-background-color: #0b1020; --ha-dialog-surface-background: #0b1020; --mdc-theme-surface: #0b1020; --ha-card-background: transparent; --card-background-color: #0b1020; --primary-background-color: #0b1020; --mdc-dialog-scrim-color: rgba(0,0,0,.7); --ha-dialog-scrim-backdrop-filter: blur(8px) brightness(.5); --popup-border-radius: 28px;'

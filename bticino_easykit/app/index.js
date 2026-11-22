@@ -98,6 +98,7 @@ async function avviaMqtt() {
       log(`👀 Anteprima video allo squillo: ${impost.anteprima ? 'ACCESA' : 'spenta'}`);
       return;
     }
+    if (topic.startsWith(`${T}/cmd/storico/`)) { storicoComando(topic.slice(`${T}/cmd/storico/`.length), msg); return; }
     if (topic === `${T}/cmd/vivo`) { if (!MJ.vivoT) log('💓 popup aperto (battito ricevuto)'); MJ.vivoT = Date.now(); return; }
     if (topic === `${T}/cmd/foto`) return scattaFoto('pulsante').catch(() => {});
     const m = topic.match(/\/cmd\/apri\/(.+)$/);
@@ -186,10 +187,11 @@ function stoSalva() {
 }
 function pubStorico() {
   pub(`${T}/storico/stato`, String(storico.length));
-  pub(`${T}/storico/attr`, { voci: storico.map(v => ({ t: v.t, esito: v.esito, foto: v.foto ? `/local/videocitofono/storico/${v.foto}` : null })) });
+  pub(`${T}/storico/attr`, { nuove: storico.filter(v => v.nuova).length,
+    voci: storico.map(v => ({ id: v.id, t: v.t, esito: v.esito, nuova: !!v.nuova, foto: v.foto ? `/local/videocitofono/storico/${v.foto}` : null })) });
 }
 function storicoNuovo() {
-  stoCorrente = { id: require('crypto').randomBytes(12).toString('hex'), t: new Date().toISOString(), esito: 'squillo', foto: null };
+  stoCorrente = { id: require('crypto').randomBytes(12).toString('hex'), t: new Date().toISOString(), esito: 'squillo', foto: null, nuova: true };
   storico.unshift(stoCorrente);
   for (const v of storico.splice(10)) { if (v.foto) { try { fs.unlinkSync(path.join(STO_DIR, v.foto)); } catch (_) {} } }
   stoSalva();
@@ -197,6 +199,19 @@ function storicoNuovo() {
 function storicoFoto(jpg) {
   if (!stoCorrente || stoCorrente.foto || Date.now() - Date.parse(stoCorrente.t) > 120000) return;
   try { const f = stoCorrente.id + '.jpg'; fs.writeFileSync(path.join(STO_DIR, f), jpg); stoCorrente.foto = f; stoSalva(); } catch (e) { log('Storico foto:', e.message); }
+}
+// 1.1.0: comandi dal popup / commands from the popup -> <T>/cmd/storico/elimina (payload = id) | svuota | visto
+function storicoTogli(v) { if (v.foto) { try { fs.unlinkSync(path.join(STO_DIR, v.foto)); } catch (_) {} } if (v === stoCorrente) stoCorrente = null; }
+function storicoComando(cmd, msg) {
+  if (cmd === 'elimina') {
+    const id = String(msg).trim(); const i = storico.findIndex(v => v.id === id);
+    if (i < 0) return; storicoTogli(storico[i]); storico.splice(i, 1); log('🗑️ Storico: chiamata eliminata / call deleted');
+  } else if (cmd === 'svuota') {
+    if (!storico.length) return; storico.forEach(storicoTogli); storico = []; log('🧹 Storico: svuotato / history cleared');
+  } else if (cmd === 'visto') {
+    if (!storico.some(v => v.nuova)) return; storico.forEach(v => { v.nuova = false; });
+  } else return;
+  stoSalva();
 }
 function storicoEsito(esito) {
   if (!stoCorrente || stoCorrente.esito !== 'squillo') return;

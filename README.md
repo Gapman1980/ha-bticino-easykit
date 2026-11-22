@@ -16,7 +16,8 @@ Add-on non ufficiale per Home Assistant per il videocitofono **BTicino EASY KIT 
 ### Features
 - 🔔 **Ring** detection in real time, **missed call** and **answered at home** events
 - 📹 **Live video** of the entrance panel in Home Assistant – **also while it is ringing** (like the official app, the indoor monitor keeps ringing)
-- 📸 **Snapshot** of who rings (for notifications) and **ring history** (last 10, with photo and outcome)
+- 📸 **Snapshot** of who rings (for notifications) and **call history** (last 10, with photo and outcome)
+- 🆕 **1.1.0:** delete one call 🗑️ or all of them 🧹 (with confirmation), **yellow badge** on the mini card with the number of **unseen calls**, tap a thumbnail to see the photo full screen
 - 🚪 **Open** the locks of your kit (gate / door) from Home Assistant
 - 🗣️ "**Call in progress**" status when someone answers from the monitor
 - 📲 Ready-made examples: phone **notification with photo** and Open / Answer buttons, **Alexa**, **Telegram**, animated **mini card** and **popup**, **automatic popup on a wall tablet**
@@ -29,6 +30,10 @@ Add-on non ufficiale per Home Assistant per il videocitofono **BTicino EASY KIT 
 | Wall tablet | Notification |
 |---|---|
 | ![tablet](docs/images/tablet_floorplan.png) | ![notification](docs/images/notifica.jpg) |
+
+**New in 1.1.0 – call history / Novità 1.1.0 – storico chiamate**
+
+![call history](docs/images/storico_chiamate.png)
 
 ### Compatibility
 | Kit | App | Status |
@@ -58,14 +63,15 @@ Options: `language` (it/en entity names), and only if needed `login_host` (HA ad
 | `camera.videocitofono_video` | live video (MJPEG) – the video call starts only while someone watches |
 | `camera.videocitofono_foto` | last snapshot · `button.videocitofono_aggiorna_foto` takes a new one |
 | `sensor.videocitofono_ultimo_squillo` / `_ultima_foto` | timestamps |
-| `sensor.videocitofono_storico` | ring history (attribute `voci`: time, outcome, photo) |
+| `sensor.videocitofono_storico` | call history, last 10 (attribute `voci`: id, time, outcome, photo, `nuova`; attribute `nuove` = unseen calls) |
+| MQTT `bticino_easykit/cmd/storico/…` | 1.1.0: `elimina` (payload = call id) deletes one call and its photo · `svuota` deletes all · `visto` marks all as seen (the popup does it when it opens) |
 | `switch.videocitofono_anteprima` | video preview while ringing (on by default) |
 | `binary_sensor.videocitofono_connesso` | connected to the BTicino service |
 
 ### Dashboard and automations
 Requirements for the cards (HACS): **button-card**, **card-mod**, **browser_mod**.
-- [`examples/mini_card_videocitofono.yaml`](examples/mini_card_videocitofono.yaml) – animated mini card (amber idle, red ringing, green in call). Double tap opens the popup.
-- [`examples/popup_videocitofono.yaml`](examples/popup_videocitofono.yaml) – popup with live video, gate / door tiles, Answer, history and status.
+- [`examples/mini_card_videocitofono.yaml`](examples/mini_card_videocitofono.yaml) – animated mini card (amber idle, red ringing, green in call) with the **yellow badge of unseen calls**. Double tap opens the popup.
+- [`examples/popup_videocitofono.yaml`](examples/popup_videocitofono.yaml) – popup with live video, gate / door tiles, Answer, status and the **last 5 calls**: tap a thumbnail = full-screen photo (the yellow **NEW** frame goes away once you have seen it), 🗑️ deletes one call, 🧹 deletes all, always with a confirmation.
 - [`examples/automazione_popup_tablet.yaml`](examples/automazione_popup_tablet.yaml) – the popup opens by itself on a wall tablet when someone rings (also wakes the iOS kiosk-mode screensaver).
 - [`examples/automazioni_avvisi.yaml`](examples/automazioni_avvisi.yaml) – notification with photo + Open/Answer buttons (Face ID on iOS), Alexa, Telegram, missed call.
 
@@ -92,7 +98,8 @@ Open an [issue](https://github.com/Gapman1980/ha-bticino-easykit/issues/new/choo
 ### Cosa fa
 - 🔔 **Squillo** in tempo reale, eventi **chiamata persa** e **risposto in casa**
 - 📹 **Video live** della pulsantiera in Home Assistant – **anche mentre squilla** (come l'app ufficiale: il monitor in casa continua a suonare)
-- 📸 **Foto** di chi suona (per le notifiche) e **storico squilli** (ultimi 10, con foto ed esito)
+- 📸 **Foto** di chi suona (per le notifiche) e **storico chiamate** (ultime 10, con foto ed esito)
+- 🆕 **1.1.0:** elimina una chiamata 🗑️ o tutte 🧹 (con conferma), **pallino giallo** sulla mini card con il numero di **chiamate non viste**, tocchi la miniatura e vedi la foto a schermo intero
 - 🚪 **Apri** le serrature del kit (cancello / cancelletto) da Home Assistant
 - 🗣️ Stato "**Conversazione in corso**" quando si risponde dal monitor
 - 📲 Esempi pronti: **notifica con foto** e pulsanti Apri / Rispondi, **Alexa**, **Telegram**, **mini card** e **popup** animati, **popup automatico sul tablet a muro**
@@ -119,10 +126,14 @@ Opzioni: `language` (nomi entità it/en) e, solo se serve, `login_host` (indiriz
 ### Entità
 Vedi la tabella *Entities* sopra: i nomi sono gli stessi (`videocitofono_squillo`, `videocitofono_chiamata`, `videocitofono_apri_<serratura>`, `videocitofono_video`, ...).
 
+**Storico (1.1.0):** `sensor.videocitofono_storico` ha l'attributo `nuove` (chiamate non viste) e ogni voce ha un `id`. Comandi MQTT: `bticino_easykit/cmd/storico/elimina` (payload = id) cancella una chiamata con la sua foto, `…/svuota` le cancella tutte, `…/visto` le segna come viste (lo fa il popup quando si apre).
+
+![storico chiamate](docs/images/storico_chiamate.png)
+
 ### Dashboard e automazioni
 Per le card servono (HACS): **button-card**, **card-mod**, **browser_mod**. Esempi nella cartella [`examples/`](examples/):
-- **mini card** animata (ambra a riposo, rossa quando suonano, verde in conversazione), doppio tocco = popup;
-- **popup** con video live, piastrelle cancello/cancelletto animate, Rispondi, storico e stato;
+- **mini card** animata (ambra a riposo, rossa quando suonano, verde in conversazione) con il **pallino giallo delle chiamate non viste**, doppio tocco = popup;
+- **popup** con video live, piastrelle cancello/cancelletto animate, Rispondi, stato e **ultime 5 chiamate**: tocco sulla miniatura = foto a schermo intero (il riquadro giallo **NUOVA** sparisce dopo averla vista), 🗑️ elimina una chiamata, 🧹 tutte, sempre con conferma;
 - **popup automatico sul tablet a muro** allo squillo (spegne anche il salvaschermo della modalità kiosk iOS);
 - **notifica con foto** e pulsanti Apri/Rispondi (Face ID su iOS), **Alexa**, **Telegram**, **chiamata persa**.
 

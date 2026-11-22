@@ -1,6 +1,7 @@
 # Mini card Videocitofono / Door entry mini card
 # IT: doppio tocco = apre il popup "videocitofono". Stati: ambra a riposo, rossa quando suonano, verde in conversazione.
 # EN: double tap = opens the "videocitofono" popup. Amber idle, red when ringing, green during a call.
+# 1.1.0: pallino giallo = chiamate non viste (si azzera aprendo il popup) / yellow badge = unseen calls (cleared when the popup opens).
 
 type: custom:button-card
 entity: binary_sensor.videocitofono_squillo
@@ -28,6 +29,8 @@ double_tap_action:
 custom_fields:
   over: |-
     [[[
+    const nvc = ((states['sensor.videocitofono_storico'] || {}).attributes || {}).nuove || 0;
+    const nvb = nvc > 0 ? '<div class="vc-nv">' + (nvc > 9 ? '9+' : nvc) + '</div>' : '';
     const st = (e) => (states[e] || {}).state;
     const ring = st('binary_sensor.videocitofono_squillo') === 'on';
     const talk = st('binary_sensor.videocitofono_occupato') === 'on';
@@ -55,33 +58,33 @@ custom_fields:
       '<path class="gr" d="M26 21 h12 M26 24 h12 M26 27 h12"/>' +
       '<g class="pul"><circle class="tasto" cx="32" cy="35" r="4.3"/>' +
       '<path class="camp" d="M30.2 36.4 h3.6 l-.6 -.8 v-1.6 a1.2 1.2 0 0 0 -2.4 0 v1.6 z M31.6 37 a.45 .45 0 0 0 .8 0"/></g>' +
-      '</svg><div class="vc-txt"><b>' + b + '</b><span>' + sp + '</span></div></div>';
+      '</svg>' + nvb + '<div class="vc-txt"><b>' + b + '</b><span>' + sp + '</span></div></div>';
     ]]]
   lucido: <div class="lc-riga"></div>
 styles:
   card:
-    - position: relative
-    - overflow: hidden
-    - border-radius: 12px
-    - height: 100%
-    - padding: "0"
-    - border: none
-    - background: transparent
+  - position: relative
+  - overflow: hidden
+  - border-radius: 12px
+  - height: 100%
+  - padding: '0'
+  - border: none
+  - background: transparent
   custom_fields:
     over:
-      - position: absolute
-      - inset: "0"
-      - z-index: "2"
-      - pointer-events: none
+    - position: absolute
+    - inset: '0'
+    - z-index: '2'
+    - pointer-events: none
     lucido:
-      - position: absolute
-      - inset: "0"
-      - pointer-events: none
-      - z-index: "4"
-      - border-radius: inherit
-      - overflow: hidden
-      - "--lc-dur": 9.0s
-      - "--lc-rit": "-3.0s"
+    - position: absolute
+    - inset: '0'
+    - pointer-events: none
+    - z-index: '4'
+    - border-radius: inherit
+    - overflow: hidden
+    - --lc-dur: 9.0s
+    - --lc-rit: -3.0s
 extra_styles: |-
   ha-card { --bc: #FFB300; isolation: isolate; }
   .vc { position: absolute; inset: 0; border-radius: 12px; overflow: hidden;
@@ -131,3 +134,9 @@ extra_styles: |-
              transform: translateX(-180%) skewX(-14deg); animation: lc_passa var(--lc-dur, 9s) ease-in-out var(--lc-rit, 0s) infinite; }
   @keyframes lc_passa { 0%, 70% { transform: translateX(-180%) skewX(-14deg); } 92%, 100% { transform: translateX(420%) skewX(-14deg); } }
   /* fine lucido_ovunque */
+  /* pallino chiamate non viste */
+  .vc-nv { position: absolute; top: 5px; right: 6px; z-index: 5; min-width: 18px; height: 18px; padding: 0 4px; box-sizing: border-box; border-radius: 9px;
+           display: grid; place-items: center; background: #FFD600; color: #111; font: 900 11px/1 system-ui, sans-serif;
+           box-shadow: 0 0 0 2px #0b1220, 0 0 10px #FFD600; animation: vc_nv 1.4s ease-in-out infinite; }
+  @keyframes vc_nv { 50% { transform: scale(1.15); box-shadow: 0 0 0 2px #0b1220, 0 0 18px #FFD600; } }
+  /* fine pallino */
