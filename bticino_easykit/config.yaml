@@ -1,5 +1,5 @@
 name: BTicino EASY KIT
-version: "1.1.0"
+version: "1.1.1"
 slug: bticino_easykit
 description: BTicino EASY KIT Connected door entry in Home Assistant - ring, missed call, live video (also while ringing), snapshots, gate/door opening, ring history. Unofficial.
 url: https://github.com/Gapman1980/ha-bticino-easykit

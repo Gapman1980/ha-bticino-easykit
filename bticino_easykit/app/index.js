@@ -146,17 +146,32 @@ function fotoDopoChiamata() {
   // aspetto 3 s: se il popup e' aperto, a fine squillo il telefono si ricollega al video
   setTimeout(fotoDecidi, 3000);
 }
-function fotoDecidi() {
+function fotoDecidi(attesa = 0) {
+  // 25/11: pulsantiera occupata (risposto dal monitor, 486): niente scatti finche' non si libera (max 3 min)
+  if (occupato && attesa < 180000) { if (!attesa) log('📸 Foto squillo: aspetto che la pulsantiera si liberi'); setTimeout(() => fotoDecidi(attesa + 3000), 3000); return; }
   // se qualcuno guarda il popup il video sta gia' partendo: la foto la prendo dal video (niente seconda chiamata)
   if (MJ.clienti.size) {
-    MJ.fotoDaVideo = 4; // salta i primi fotogrammi
+    MJ.fotoDaVideo = 8; MJ.fotoScarti = 0; // salta i primi fotogrammi (possono essere verdi)
     clearTimeout(MJ.fotoRiserva);
-    MJ.fotoRiserva = setTimeout(() => { if (MJ.fotoDaVideo) { MJ.fotoDaVideo = 0; scattaFoto('squillo').catch(() => {}); } }, 25000);
+    const riserva = () => {
+      if (!MJ.fotoDaVideo) return;
+      if (occupato) { MJ.fotoRiserva = setTimeout(riserva, 5000); return; } // mai scattare a pulsantiera occupata
+      MJ.fotoDaVideo = 0; scattaFoto('squillo').catch(() => {});
+    };
+    MJ.fotoRiserva = setTimeout(riserva, 25000);
     return;
   }
   scattaFoto('squillo').catch(() => setTimeout(() => scattaFoto('squillo, 2o tentativo').catch(() => {}), 4000));
 }
-function salvaFotoDaVideo(jpg) {
+async function salvaFotoDaVideo(jpg) {
+  const v = await fotoValida(jpg);
+  if (!v.ok) {
+    MJ.fotoScarti = (MJ.fotoScarti || 0) + 1;
+    log(`🟩 Foto (squillo, dal video) scartata: ${v.why} (${MJ.fotoScarti}/10)`);
+    if (MJ.fotoScarti < 10) MJ.fotoDaVideo = 5; // riprovo qualche fotogramma dopo
+    return;                                      // mai salvare un fotogramma rovinato
+  }
+  MJ.fotoScarti = 0;
   ultimaFoto = jpg;
   fs.writeFileSync(path.join(DIR, 'ultima_foto.jpg'), jpg);
   pub(`${T}/foto`, jpg);
@@ -197,7 +212,7 @@ function storicoNuovo() {
   stoSalva();
 }
 function storicoFoto(jpg) {
-  if (!stoCorrente || stoCorrente.foto || Date.now() - Date.parse(stoCorrente.t) > 120000) return;
+  if (!stoCorrente || stoCorrente.foto || Date.now() - Date.parse(stoCorrente.t) > 300000) return;
   try { const f = stoCorrente.id + '.jpg'; fs.writeFileSync(path.join(STO_DIR, f), jpg); stoCorrente.foto = f; stoSalva(); } catch (e) { log('Storico foto:', e.message); }
 }
 // 1.1.0: comandi dal popup / commands from the popup -> <T>/cmd/storico/elimina (payload = id) | svuota | visto
@@ -318,11 +333,17 @@ async function anteprimaAvvia(inv, callId) {
   log(`👀 Anteprima video avviata durante lo squillo (183, relay ${ip}:${porta})`);
   clearTimeout(ANT.timer); ANT.timer = setTimeout(() => anteprimaFine('tempo scaduto'), 45000);
   // foto dello squillo presa subito dall'anteprima
-  setTimeout(() => {
-    if (!ANT.callId) return;
+  // 25/11: i primi fotogrammi dell'anteprima possono essere verdi (manca il fotogramma chiave): riprovo
+  const provaAnteprima = (n) => {
+    if (!ANT.callId) { if (n > 1) { fotoAttesa = true; fotoDopoChiamata(); } return; }
     fotoAttesa = false; clearTimeout(fotoTimer);
-    scattaFoto('squillo, anteprima').catch(() => { fotoAttesa = true; });
-  }, 2500);
+    scattaFoto('squillo, anteprima').catch(() => {
+      if (n < 6 && ANT.callId) return setTimeout(() => provaAnteprima(n + 1), 1500);
+      fotoAttesa = true;                                   // niente foto buona: la prendo a fine chiamata
+      if (!ANT.callId) fotoDopoChiamata(); else { clearTimeout(fotoTimer); fotoTimer = setTimeout(fotoDopoChiamata, 40000); }
+    });
+  };
+  setTimeout(() => provaAnteprima(1), 2500);
 }
 async function anteprimaFine(motivo) {
   if (!ANT.callId) return;
@@ -359,12 +380,39 @@ let coda = Promise.resolve();
 const inCoda = (fn) => { const p = coda.then(fn, fn); coda = p.catch(() => {}); return p; };
 
 let ultimaFoto = (() => { try { return fs.readFileSync(path.join(DIR, 'ultima_foto.jpg')); } catch (_) { return null; } })();
+// 25/11: riconosce i fotogrammi rovinati (verdi = H.264 decodificato senza fotogramma chiave, o tinta unita)
+function fotoValida(jpg) {
+  return new Promise((ok) => {
+    let out = Buffer.alloc(0), fatto = false;
+    const fine = (v, why) => { if (fatto) return; fatto = true; clearTimeout(t); ok({ ok: v, why }); };
+    const p = spawn('ffmpeg', ['-loglevel', 'error', '-nostdin', '-f', 'image2pipe', '-c:v', 'mjpeg', '-i', 'pipe:0', '-vf', 'scale=32:24', '-frames:v', '1', '-f', 'rawvideo', '-pix_fmt', 'rgb24', 'pipe:1'], { stdio: ['pipe', 'pipe', 'ignore'] });
+    const t = setTimeout(() => { try { p.kill('SIGKILL'); } catch (_) {} fine(true, 'controllo scaduto'); }, 4000);
+    p.stdout.on('data', (d) => { out = Buffer.concat([out, d]); });
+    p.on('error', () => fine(true, 'ffmpeg non disponibile'));
+    p.on('close', () => {
+      if (out.length < 32 * 24 * 3) return fine(false, 'jpg non decodificabile');
+      let verdi = 0, s = 0, s2 = 0; const n = 32 * 24;
+      for (let i = 0; i < n; i++) {
+        const r = out[i * 3], g = out[i * 3 + 1], b = out[i * 3 + 2];
+        if (g > r + 35 && g > b + 35) verdi++;
+        const y = (r + g + b) / 3; s += y; s2 += y * y;
+      }
+      const dev = Math.sqrt(Math.max(0, s2 / n - (s / n) ** 2));
+      if (verdi / n > 0.35) return fine(false, `verde ${Math.round(verdi * 100 / n)}%`);
+      if (dev < 4) return fine(false, `tinta unita (dev ${dev.toFixed(1)})`);
+      fine(true, 'ok');
+    });
+    p.stdin.on('error', () => {}); p.stdin.end(jpg);
+  });
+}
 function scattaFoto(motivo) {
   return inCoda(async () => {
     if (!CAM) throw new Error('pulsantiera non trovata');
     const t0 = Date.now();
     try {
       const jpg = await auth.captureCameraSnapshot(CAM, { cameraIndex: CAM_INDEX, forceFresh: true, timeoutMs: 20000 });
+      const v = await fotoValida(jpg);
+      if (!v.ok) { log(`🟩 Foto (${motivo}) scartata: ${v.why}`); throw new Error('foto rovinata: ' + v.why); } // mai salvare il verde
       ultimaFoto = jpg;
       fs.writeFileSync(path.join(DIR, 'ultima_foto.jpg'), jpg);
       pub(`${T}/foto`, jpg);
@@ -422,7 +470,7 @@ function mjpegAvvia() {
       const b = MJ.buf.indexOf(Buffer.from([0xff, 0xd9]), a + 2); if (b < 0) { if (a > 0) MJ.buf = MJ.buf.subarray(a); return; }
       const jpg = MJ.buf.subarray(a, b + 2); MJ.buf = MJ.buf.subarray(b + 2);
       MJ.ultimo = Buffer.from(jpg); MJ.ultimoT = Date.now();
-      if (MJ.fotoDaVideo && --MJ.fotoDaVideo === 0) { clearTimeout(MJ.fotoRiserva); salvaFotoDaVideo(MJ.ultimo); }
+      if (MJ.fotoDaVideo && --MJ.fotoDaVideo === 0) { clearTimeout(MJ.fotoRiserva); salvaFotoDaVideo(MJ.ultimo).catch(() => {}); }
       const parte = parteJpeg(jpg);
       for (const r of MJ.clienti) { try { r.write(parte); } catch (_) {} }
     }
